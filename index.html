@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helen Regiani Nails · Coimbra</title>
+  <meta name="description" content="Helen Regiani Nails — Nail Design em Coimbra. Manicure, verniz gel, extensão em gel, banho de gel, blindagem e nail art com higiene, cuidado e atendimento personalizado." />
+  <meta name="theme-color" content="#E8588A" />
+  <link rel="icon" href="assets/logo.jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div class="hearts-layer" id="heartsLayer" aria-hidden="true"></div>
+
+  <!-- NAV -->
+  <header class="nav" id="nav">
+    <a href="#inicio" class="nav__brand">
+      <img src="assets/logo.jpeg" alt="" />
+      <span>Helen Regiani <em>Nails</em></span>
+    </a>
+    <nav class="nav__links" id="navLinks">
+      <a href="#sobre">Sobre</a>
+      <a href="#servicos">Serviços</a>
+      <a href="#estudio">Monta a tua unha</a>
+      <a href="#minhas">As minhas unhas</a>
+      <a href="#quiz">A tua vibe</a>
+      <a href="#galeria">Inspirações</a>
+      <a href="#duvidas">Dúvidas</a>
+      <a href="#agendar" class="btn btn--small">Marcar</a>
+    </nav>
+    <div class="auth" id="authBox" hidden>
+      <button type="button" class="auth__login" id="loginBtn">
+        <svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+        Entrar
+      </button>
+      <div class="auth__user" id="userMenu" hidden>
+        <button type="button" class="auth__avatar" id="avatarBtn" aria-haspopup="true" aria-expanded="false">
+          <img id="avatarImg" alt="" referrerpolicy="no-referrer" />
+          <span id="avatarInitial"></span>
+        </button>
+        <div class="auth__menu" id="authMenu" hidden>
+          <p class="auth__name" id="userName"></p>
+          <a href="#minhas">As minhas unhas</a>
+          <button type="button" id="logoutBtn">Sair</button>
+        </div>
+      </div>
+    </div>
+    <button class="nav__toggle" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="inicio">
+    <div class="hero__blob hero__blob--1"></div>
+    <div class="hero__blob hero__blob--2"></div>
+
+    <div class="hero__text reveal">
+      <p class="pill">📍 Coimbra, Portugal</p>
+      <p class="script">cuidar de ti começa pelas tuas mãos</p>
+      <h1><span class="nowrap">Realça a tua beleza.</span><br /><span class="accent">Cuida de ti.</span></h1>
+      <p class="lead">Nail Design com delicadeza, elegância e a atenção ao detalhe de quem passou anos a cuidar de pessoas. Cada cliente é ouvida, cada unha é pensada para ti.</p>
+      <div class="hero__cta">
+        <a href="#agendar" class="btn">Marcar horário <span class="heart-ico">♥</span></a>
+        <button type="button" class="btn btn--ghost" data-onb="hero">Criar a minha unha</button>
+      </div>
+    </div>
+
+    <div class="hero__logo reveal" id="heroLogo">
+      <svg class="hero__ring" viewBox="0 0 400 400" aria-hidden="true">
+        <defs>
+          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#E8588A" />
+            <stop offset="0.7" stop-color="#E8588A" />
+            <stop offset="1" stop-color="#5A2E1E" />
+          </linearGradient>
+        </defs>
+        <circle cx="200" cy="200" r="186" fill="none" stroke="url(#ringGrad)" stroke-width="2.5" stroke-linecap="round" class="ring-draw" />
+        <circle cx="200" cy="200" r="170" fill="none" stroke="#E8588A" stroke-opacity=".25" stroke-width="1" stroke-dasharray="2 8" class="ring-spin" />
+      </svg>
+      <div class="hero__logo-card" id="logoCard">
+        <img src="assets/logo.jpeg" alt="Logo Helen Regiani Nails" />
+        <div class="shine"></div>
+      </div>
+      <span class="orbit-heart" style="--d:0s">♥</span>
+      <span class="orbit-heart" style="--d:-4s">♥</span>
+      <span class="orbit-heart" style="--d:-8s">♥</span>
+    </div>
+
+    <a href="#sobre" class="scroll-hint" aria-label="Deslizar para baixo"><span></span></a>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <span>Manicure ♥ Verniz gel ♥ Extensão em gel ♥ Manutenção ♥ Banho de gel ♥ Blindagem ♥ Nail Art ♥&nbsp;</span>
+      <span>Manicure ♥ Verniz gel ♥ Extensão em gel ♥ Manutenção ♥ Banho de gel ♥ Blindagem ♥ Nail Art ♥&nbsp;</span>
+    </div>
+  </div>
+
+  <!-- SOBRE -->
+  <section class="section" id="sobre">
+    <div class="about">
+      <div class="about__visual reveal">
+        <div class="about__photo">
+          <img src="assets/logo.jpeg" alt="Helen Regiani Nails" />
+        </div>
+        <blockquote class="about__quote">
+          “Não se trata apenas de fazer unhas, mas de proporcionar uma experiência agradável do início ao fim.”
+          <cite>— Helen Regiani</cite>
+        </blockquote>
+      </div>
+
+      <div class="about__text reveal">
+        <p class="script">prazer, eu sou a Helen</p>
+        <h2>Da enfermagem ao Nail Design</h2>
+        <p>Brasileira, a viver em Coimbra, apaixonada pelo cuidado, pela beleza e pelo atendimento personalizado. A minha história começou na área da saúde, e é daí que vem a atenção aos detalhes que hoje levo para cada unha.</p>
+
+        <div class="journey" id="journey">
+          <div class="journey__tabs" role="tablist">
+            <button type="button" role="tab" class="journey__tab active" data-i="0"><span>01</span>Enfermagem</button>
+            <button type="button" role="tab" class="journey__tab" data-i="1"><span>02</span>A paixão</button>
+            <button type="button" role="tab" class="journey__tab" data-i="2"><span>03</span>Hoje</button>
+          </div>
+          <div class="journey__panel" id="journeyPanel" role="tabpanel"></div>
+        </div>
+
+        <h4 class="values__title">O que a enfermagem me ensinou <span class="muted">(toca para ver)</span></h4>
+        <div class="values" id="values"></div>
+        <p class="values__tip" id="valueTip">Precisão, higiene, responsabilidade, cuidado e atenção às necessidades de cada pessoa.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVIÇOS -->
+  <section class="section section--tint" id="servicos">
+    <div class="section__head reveal">
+      <p class="script">pensados para ti</p>
+      <h2>Serviços</h2>
+      <p class="muted">Passa o rato (ou toca) nos cartões para ver os detalhes.</p>
+    </div>
+    <div class="filters" id="serviceFilters"></div>
+    <div class="services" id="servicesGrid"></div>
+    <div class="promise reveal">
+      <span class="promise__heart">🤍</span>
+      <div>
+        <h3>Um serviço pensado para ti</h3>
+        <p>Cada procedimento é realizado com atenção aos detalhes, higiene, cuidado e personalização, respeitando o teu estilo e as tuas necessidades — porque cuidar de ti também começa pelas tuas mãos.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTÚDIO / SIMULADOR -->
+  <section class="section" id="estudio">
+    <div class="section__head reveal">
+      <p class="script">brinca à vontade</p>
+      <h2>Monta a tua unha</h2>
+      <p class="muted">Escolhe o formato, a cor e o acabamento. Quando gostares, é só enviar o design à Helen.</p>
+    </div>
+
+    <div class="studio reveal">
+      <div class="studio__stage">
+        <svg id="handSvg" viewBox="0 0 520 380" role="img" aria-label="Pré-visualização das unhas"></svg>
+        <div class="studio__badge" id="designName">Rosa Helen · Amendoada</div>
+      </div>
+
+      <div class="studio__panel">
+        <div class="ctrl">
+          <h4>Formato</h4>
+          <div class="chips" id="shapeChips"></div>
+        </div>
+        <div class="ctrl">
+          <h4>Cor</h4>
+          <div class="swatches" id="colorSwatches"></div>
+          <label class="custom-color">
+            <input type="color" id="customColor" value="#E8588A" /> cor personalizada
+          </label>
+          <p class="polish-info" id="polishInfo" hidden></p>
+        </div>
+        <div class="ctrl">
+          <h4>Acabamento</h4>
+          <div class="chips" id="finishChips"></div>
+        </div>
+        <div class="ctrl ctrl--row">
+          <label class="switch">
+            <input type="checkbox" id="accentToggle" />
+            <span class="switch__track"></span>
+            Unha de destaque com coração
+          </label>
+        </div>
+        <div class="ctrl">
+          <h4>Tom de pele</h4>
+          <div class="swatches swatches--skin" id="skinSwatches"></div>
+        </div>
+        <div class="studio__actions">
+          <button class="btn btn--ghost" id="randomBtn" type="button">✨ Surpreende-me</button>
+          <button class="btn btn--ghost" id="saveDesignBtn" type="button">♡ Guardar</button>
+          <button class="btn" id="sendDesignBtn" type="button">Quero esta! ♥</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AS MINHAS UNHAS -->
+  <section class="section" id="minhas">
+    <div class="section__head reveal">
+      <p class="script">as tuas favoritas</p>
+      <h2>As minhas unhas</h2>
+      <p class="muted" id="savedHint">Entra com o Google para guardares até 5 unhas e voltares a elas quando quiseres.</p>
+    </div>
+    <div class="saved reveal" id="savedGrid"></div>
+    <div class="saved__cta reveal" id="savedCta" hidden>
+      <button type="button" class="btn js-login">Entrar com o Google ♥</button>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="section section--tint" id="quiz">
+    <div class="section__head reveal">
+      <p class="script">3 perguntinhas</p>
+      <h2>Qual é a tua vibe?</h2>
+      <p class="muted">Responde e sugerimos um design para ti.</p>
+    </div>
+    <div class="quiz reveal" id="quizBox">
+      <div class="quiz__progress"><span id="quizBar"></span></div>
+      <div class="quiz__body" id="quizBody"></div>
+    </div>
+  </section>
+
+  <!-- GALERIA -->
+  <section class="section" id="galeria">
+    <div class="section__head reveal">
+      <p class="script">para te inspirares</p>
+      <h2>Inspirações</h2>
+      <p class="muted">Clica num design para o abrir no estúdio e personalizar.</p>
+    </div>
+    <div class="filters" id="galleryFilters"></div>
+    <div class="gallery" id="gallery"></div>
+  </section>
+
+  <!-- DIFERENCIAIS -->
+  <section class="section section--tint" id="diferenciais">
+    <div class="section__head reveal">
+      <p class="script">o que me diferencia</p>
+      <h2>Quero que saias a sentir-te <span class="rotator" id="rotator">bonita</span></h2>
+    </div>
+    <div class="why">
+      <div class="why__item reveal">
+        <div class="why__icon">✚</div>
+        <h3>Higiene e segurança</h3>
+        <p>Anos na área da saúde trouxeram uma preocupação especial com higiene, segurança e organização em cada atendimento.</p>
+      </div>
+      <div class="why__item reveal">
+        <div class="why__icon">♥</div>
+        <h3>Atendimento personalizado</h3>
+        <p>Cada cliente é ouvida. Das propostas simples e sofisticadas às extensões e decorações, tudo respeita o teu estilo.</p>
+      </div>
+      <div class="why__item reveal">
+        <div class="why__icon">❀</div>
+        <h3>Um momento só teu</h3>
+        <p>Mais do que unhas bonitas: um momento de autocuidado para parares, relaxares e dedicares tempo a ti própria.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="duvidas">
+    <div class="section__head reveal">
+      <p class="script">ficou alguma dúvida?</p>
+      <h2>Perguntas frequentes</h2>
+    </div>
+    <div class="faq reveal" id="faq"></div>
+  </section>
+
+  <!-- MARCAR -->
+  <section class="section booking" id="agendar">
+    <div class="booking__card reveal">
+      <div class="booking__intro">
+        <p class="script">vamos marcar?</p>
+        <h2>Marca o teu horário</h2>
+        <p>Preenche rapidamente e a tua mensagem segue prontinha para o WhatsApp da Helen.</p>
+        <ul class="booking__contacts">
+          <li><span>Onde</span><strong>Coimbra, Portugal</strong></li>
+          <li><span>WhatsApp</span><a href="#" class="js-phone" target="_blank" rel="noopener"></a></li>
+          <li><span>E-mail</span><a href="#" class="js-email"></a></li>
+          <li><span>Instagram</span><a href="#" class="js-insta" target="_blank" rel="noopener">@HelenRegianiNails</a></li>
+        </ul>
+        <div class="booking__summary" id="bookingSummary" hidden>
+          <svg viewBox="0 0 520 380" id="miniHand" aria-hidden="true"></svg>
+          <p><strong>Design escolhido:</strong> <span id="summaryText"></span></p>
+          <button type="button" class="link" id="clearDesign">remover design</button>
+        </div>
+      </div>
+      <form class="form" id="bookingForm" novalidate>
+        <label>O teu nome
+          <input type="text" name="nome" required placeholder="Como te posso chamar?" />
+        </label>
+        <label>Serviço
+          <select name="servico" id="serviceSelect" required></select>
+        </label>
+        <div class="form__row">
+          <label>Data preferida
+            <input type="date" name="data" id="dateInput" required />
+          </label>
+          <label>Período
+            <select name="periodo">
+              <option>Manhã</option>
+              <option>Tarde</option>
+              <option>Fim do dia</option>
+            </select>
+          </label>
+        </div>
+        <label><span>Observações <span class="muted">(opcional)</span></span>
+          <textarea name="obs" rows="3" placeholder="Alguma ideia, referência ou alergia?"></textarea>
+        </label>
+        <p class="form__error" id="formError" role="alert"></p>
+        <button class="btn btn--block" type="submit">Enviar pelo WhatsApp <span class="heart-ico">♥</span></button>
+      </form>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <img src="assets/logo.jpeg" alt="Helen Regiani Nails" class="footer__logo" />
+    <p class="footer__tagline">Realça a tua beleza. Cuida das tuas unhas. <em>Cuida de ti.</em></p>
+    <div class="footer__links">
+      <a href="#" id="instaLink" target="_blank" rel="noopener">Instagram @HelenRegianiNails</a>
+      <a href="#" id="waLink" target="_blank" rel="noopener">WhatsApp</a>
+      <a href="#" id="mailLink">E-mail</a>
+    </div>
+    <p class="footer__contact">
+      📍 Coimbra, Portugal ·
+      <a href="#" class="js-phone" target="_blank" rel="noopener"></a> ·
+      <a href="#" class="js-email"></a>
+    </p>
+    <p class="muted small">© <span id="year"></span> Helen Regiani Nails · <a href="admin.html" class="footer__admin">Área da Helen</a></p>
+  </footer>
+
+  <a href="#" class="wa-float" id="waFloat" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path fill="currentColor" d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.4.7 4.7 1.9 6.7L3 29l6.9-2.1c1.9 1 4 1.6 6.1 1.6 7 0 12.7-5.7 12.7-12.7S23 3 16 3zm0 23.2c-1.9 0-3.8-.5-5.4-1.5l-.4-.2-4.1 1.2 1.2-4-.3-.4c-1.1-1.7-1.7-3.7-1.7-5.7C5.3 9.8 10.1 5 16 5s10.6 4.8 10.6 10.6S21.9 26.2 16 26.2zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-1 1.2-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.5-1.6-.9-.8-1.6-1.8-1.7-2.1-.2-.3 0-.5.1-.6l.5-.6c.2-.2.2-.3.3-.5.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.2-1.2 2.9s1.2 3.4 1.4 3.6c.2.2 2.4 3.7 5.9 5.2 2.9 1.1 3.5.9 4.1.8.6-.1 1.9-.8 2.2-1.6.3-.8.3-1.4.2-1.6-.1-.1-.3-.2-.6-.3z"/></svg>
+  </a>
+  <a href="#inicio" class="to-top" id="toTop" aria-label="Voltar ao topo">↑</a>
+
+  <!-- Onboarding: criar a unha passo a passo -->
+  <div class="onb" id="onb" hidden>
+    <div class="onb__box" role="dialog" aria-modal="true" aria-label="Cria a tua unha">
+      <button type="button" class="onb__close" id="onbClose" aria-label="Fechar">×</button>
+      <div class="onb__top">
+        <div class="onb__bar"><span id="onbBar"></span></div>
+        <span class="onb__count" id="onbCount"></span>
+      </div>
+      <div class="onb__preview" id="onbPreview" hidden><svg viewBox="0 0 520 380" id="onbHand" aria-hidden="true"></svg></div>
+      <div class="onb__body" id="onbBody"></div>
+      <div class="onb__nav" id="onbNav">
+        <button type="button" class="onb__skip" id="onbBack">← voltar</button>
+        <button type="button" class="btn" id="onbNext">Continuar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Convite para o onboarding (primeira visita) -->
+  <div class="onb-invite" id="onbInvite" hidden>
+    <button type="button" class="onb-invite__close" id="onbInviteClose" aria-label="Fechar">×</button>
+    <img src="assets/logo.jpeg" alt="" />
+    <p><strong>Olá, sou a Helen ♥</strong>Queres criar a tua unha comigo? Leva menos de um minuto.</p>
+    <div class="onb-invite__actions">
+      <button type="button" class="btn btn--small" data-onb="convite">Vamos lá!</button>
+      <button type="button" class="btn btn--ghost btn--small" id="onbInviteLater">Agora não</button>
+    </div>
+  </div>
+
+  <!-- Login -->
+  <div class="modal" id="loginModal" hidden>
+    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <button type="button" class="modal__close" data-close aria-label="Fechar">×</button>
+      <p class="script">que bom ver-te</p>
+      <h3 id="loginTitle">Guarda as tuas unhas favoritas</h3>
+      <p class="muted">Entra com a tua conta Google para guardares até 5 designs e voltares a eles quando quiseres — no telemóvel ou no computador.</p>
+      <button type="button" class="btn btn--block" id="googleBtn">Entrar com o Google</button>
+      <p class="small muted">Usamos apenas o teu nome, e-mail e fotografia do Google.</p>
+    </div>
+  </div>
+
+  <!-- Aviso de privacidade -->
+  <div class="consent" id="consent" hidden>
+    <p>Usamos dados anónimos de navegação para melhorar o site. Nada é partilhado com terceiros.</p>
+    <button type="button" class="btn btn--small" id="consentOk">Ok</button>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/nails.js"></script>
+  <script src="js/track.js"></script>
+  <script src="js/backend.js"></script>
+  <script src="js/site.js"></script>
+</body>
+</html>

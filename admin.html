@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Painel · Helen Regiani Nails</title>
+  <link rel="icon" href="assets/logo.jpeg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+  <header class="top">
+    <a class="top__brand" href="index.html">
+      <img src="assets/logo.jpeg" alt="" />
+      <span><span class="js-brand">Helen Regiani Nails</span> <small>painel</small></span>
+    </a>
+    <div class="top__right">
+      <a href="index.html" class="ghost-btn" target="_blank" rel="noopener">Ver site ↗</a>
+      <div class="top__user" id="topUser" hidden>
+        <img id="topAvatar" alt="" referrerpolicy="no-referrer" />
+        <span id="topName"></span>
+        <button type="button" class="ghost-btn" id="logoutBtn">Sair</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Acesso -->
+  <section class="gate" id="gate">
+    <div class="gate__card">
+      <img src="assets/logo.jpeg" alt="" />
+      <h1>Área da Helen</h1>
+      <p id="gateMsg">Entra com a conta Google registada como administradora.</p>
+      <button type="button" class="primary-btn" id="loginBtn" hidden>Entrar com Google</button>
+    </div>
+  </section>
+
+  <main class="app" id="app" hidden>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-tab="overview" class="active">Visão geral</button>
+      <button role="tab" data-tab="onboarding">Onboarding</button>
+      <button role="tab" data-tab="journey">Jornada</button>
+      <button role="tab" data-tab="designs">Unhas</button>
+      <button role="tab" data-tab="visitors">Visitantes</button>
+      <button role="tab" data-tab="stock">Stock de vernizes</button>
+      <button role="tab" data-tab="palette">Cores do site</button>
+      <button role="tab" data-tab="clients">Clientes</button>
+    </nav>
+
+    <div class="range" id="rangeBar">
+      <div class="seg" id="rangePresets">
+        <button type="button" data-days="0">Hoje</button>
+        <button type="button" data-days="7">7 dias</button>
+        <button type="button" data-days="30" class="active">30 dias</button>
+        <button type="button" data-days="90">90 dias</button>
+      </div>
+      <label class="range__custom">de <input type="date" id="rangeFrom" /></label>
+      <label class="range__custom">até <input type="date" id="rangeTo" /></label>
+      <button type="button" class="ghost-btn" id="refreshBtn" title="Atualizar">↻ Atualizar</button>
+      <span class="range__status" id="rangeStatus"></span>
+    </div>
+
+    <!-- VISÃO GERAL -->
+    <section class="tab" data-panel="overview">
+      <div class="tiles" id="kpis"></div>
+      <div class="card">
+        <div class="card__head">
+          <h2>Visitantes por dia</h2>
+          <p class="muted" id="dailySub"></p>
+        </div>
+        <div class="chart" id="dailyChart"></div>
+      </div>
+      <div class="grid3">
+        <div class="card"><h2>De onde vieram</h2><p class="muted">visitas por origem</p><div id="sources"></div></div>
+        <div class="card"><h2>Dispositivo</h2><p class="muted">visitas por tipo de dispositivo</p><div id="devices"></div></div>
+        <div class="card"><h2>Secções vistas</h2><p class="muted">visitas que chegaram a cada parte do site</p><div id="sections"></div></div>
+      </div>
+    </section>
+
+    <!-- ONBOARDING -->
+    <section class="tab" data-panel="onboarding" hidden>
+      <p class="note">O onboarding é o passo a passo “Cria a tua unha” (nome → serviço → formato → cor → acabamento → resultado). Abre pelo convite que aparece na primeira visita ou pelo botão “Criar a minha unha”.</p>
+      <div class="tiles" id="onbKpis"></div>
+      <div class="card">
+        <div class="card__head">
+          <h2>Até onde chegaram</h2>
+          <p class="muted">Visitas que chegaram a cada passo do onboarding, e quantas se perderam de um passo para o seguinte.</p>
+        </div>
+        <div id="onbFunnel"></div>
+      </div>
+      <div class="grid3">
+        <div class="card"><h2>Onde desistiram</h2><p class="muted">passo em que fecharam o onboarding</p><div id="onbExits"></div></div>
+        <div class="card"><h2>O que fizeram no fim</h2><p class="muted">visitas que concluíram</p><div id="onbActions"></div></div>
+        <div class="card"><h2>Como começaram</h2><p class="muted">de onde abriram o onboarding</p><div id="onbOrigins"></div></div>
+      </div>
+      <div class="card"><h2>Serviço escolhido no onboarding</h2><p class="muted">visitas que concluíram</p><div id="onbServices"></div></div>
+    </section>
+
+    <!-- JORNADA -->
+    <section class="tab" data-panel="journey" hidden>
+      <div class="card">
+        <div class="card__head">
+          <h2>Jornada das visitas</h2>
+          <p class="muted">Quantas visitas chegaram a cada etapa, da entrada no site até ao pedido de marcação pelo WhatsApp.</p>
+        </div>
+        <div id="funnel"></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>Onde pararam</h2><p class="muted">última etapa alcançada em cada visita</p><div id="stops"></div></div>
+        <div class="card"><h2>Outras interações</h2><p class="muted">vezes · visitas diferentes</p><div id="interactions"></div></div>
+      </div>
+    </section>
+
+    <!-- UNHAS -->
+    <section class="tab" data-panel="designs" hidden>
+      <p class="note">Conta pessoas que escolheram (“Quero esta!”), guardaram ou enviaram cada tipo de unha na marcação. “Marcaram” são as visitas que enviaram o pedido pelo WhatsApp com aquele design.</p>
+      <div class="card">
+        <h2>Combinações mais escolhidas</h2>
+        <div class="combos" id="combos"></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><h2>Formatos</h2><p class="muted">pessoas</p><div id="shapes"></div></div>
+        <div class="card"><h2>Acabamentos</h2><p class="muted">pessoas</p><div id="finishes"></div></div>
+      </div>
+      <div class="card">
+        <div class="card__head">
+          <h2>Cores × stock</h2>
+          <p class="muted">Cores mais procuradas e o verniz ligado a cada uma — para saber o que repor.</p>
+        </div>
+        <div id="colors"></div>
+      </div>
+    </section>
+
+    <!-- VISITANTES -->
+    <section class="tab" data-panel="visitors" hidden>
+      <div class="card">
+        <div class="card__head card__head--row">
+          <div>
+            <h2>Visitas recentes</h2>
+            <p class="muted">Clica numa visita para ver tudo o que a pessoa fez.</p>
+          </div>
+          <div class="toolbar">
+            <input type="search" id="visitSearch" placeholder="Procurar nome, origem…" />
+            <select id="visitFilter">
+              <option value="all">Todas</option>
+              <option value="booked">Enviaram marcação</option>
+              <option value="designed">Montaram unha e não marcaram</option>
+              <option value="onb_quit">Desistiram do onboarding</option>
+              <option value="onb_done">Concluíram o onboarding</option>
+              <option value="bounced">Só entraram</option>
+              <option value="logged">Com conta Google</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="visitsTable">
+            <thead><tr><th>Quando</th><th>Quem</th><th>Origem</th><th>Dispositivo</th><th>Duração</th><th>Até onde chegou</th><th>Onboarding</th><th>Unha</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <button type="button" class="ghost-btn more-btn" id="visitsMore" hidden></button>
+      </div>
+    </section>
+
+    <!-- STOCK -->
+    <section class="tab" data-panel="stock" hidden>
+      <div class="alerts" id="stockAlerts"></div>
+      <div class="card">
+        <div class="card__head card__head--row">
+          <div>
+            <h2>Vernizes em stock</h2>
+            <p class="muted" id="stockSub"></p>
+          </div>
+          <div class="toolbar">
+            <input type="search" id="stockSearch" placeholder="Procurar marca, nome, código…" />
+            <button type="button" class="primary-btn" id="newPolishBtn">+ Novo verniz</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="stockTable">
+            <thead><tr><th></th><th>Verniz</th><th>Acabamento</th><th>Quantidade</th><th>Cores do site ligadas</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CORES DO SITE -->
+    <section class="tab" data-panel="palette" hidden>
+      <div class="card">
+        <div class="card__head card__head--row">
+          <div>
+            <h2>Cores do estúdio</h2>
+            <p class="muted">Estas são as cores que as clientes escolhem no site. Liga cada uma a um verniz do teu stock — o nome do verniz aparece para a cliente e segue na mensagem do WhatsApp.</p>
+          </div>
+          <div class="toolbar">
+            <button type="button" class="primary-btn" id="newColorBtn">+ Nova cor</button>
+          </div>
+        </div>
+        <div class="palette" id="paletteList"></div>
+      </div>
+    </section>
+
+    <!-- CLIENTES -->
+    <section class="tab" data-panel="clients" hidden>
+      <div class="card">
+        <div class="card__head">
+          <h2>Clientes registadas</h2>
+          <p class="muted" id="clientsSub"></p>
+        </div>
+        <div class="clients" id="clientsList"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Formulário de verniz -->
+  <dialog class="dialog" id="polishDialog">
+    <form method="dialog" id="polishForm">
+      <h2 id="polishTitle">Novo verniz</h2>
+      <div class="form-grid">
+        <label>Marca<input name="brand" required maxlength="60" placeholder="Ex.: OPI" /></label>
+        <label>Nome da cor<input name="name" required maxlength="80" placeholder="Ex.: Big Apple Red" /></label>
+        <label>Código<input name="code" maxlength="30" placeholder="opcional" /></label>
+        <label>Acabamento
+          <select name="finish">
+            <option value="">—</option>
+            <option>Cremoso</option><option>Cintilante</option><option>Glitter</option><option>Metálico</option>
+            <option>Perolado</option><option>Fosco</option><option>Gel</option><option>Top coat / base</option>
+          </select>
+        </label>
+        <label>Cor<span class="color-field"><input type="color" name="hex" value="#E8588A" /><input name="hexText" pattern="#[0-9a-fA-F]{6}" maxlength="7" /></span></label>
+        <label>Quantidade<input type="number" name="quantity" min="0" value="1" required /></label>
+        <label>Avisar quando tiver menos de<input type="number" name="min_quantity" min="0" value="1" /></label>
+        <label class="check"><input type="checkbox" name="active" checked /> Ativo</label>
+        <label class="span2">Observações<textarea name="notes" rows="2" maxlength="300"></textarea></label>
+      </div>
+      <p class="form-error" id="polishError"></p>
+      <div class="dialog__actions">
+        <button type="button" class="ghost-btn" value="cancel" data-close>Cancelar</button>
+        <button type="submit" class="primary-btn" value="save">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Detalhe da visita -->
+  <aside class="drawer" id="drawer" hidden>
+    <div class="drawer__box" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <button type="button" class="drawer__close" id="drawerClose" aria-label="Fechar">×</button>
+      <h2 id="drawerTitle">Visita</h2>
+      <div id="drawerBody"></div>
+    </div>
+  </aside>
+
+  <div class="tip" id="tip" role="tooltip" hidden></div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/nails.js"></script>
+  <script>
+    // o painel nunca entra nas estatísticas: marca este navegador como "não rastrear"
+    try { localStorage.setItem("nails_notrack", "1"); } catch (e) {}
+  </script>
+  <script src="js/backend.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
