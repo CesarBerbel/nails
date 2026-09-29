@@ -40,7 +40,9 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://bukzxdqtjcmevvshzyoi.supabase.co" crossorigin />
   <link rel="preload" as="image" href="assets/logo-800.jpg" fetchpriority="high" />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <!-- fontes sem bloquear a primeira pintura -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&display=swap" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Montserrat:wght@300;400;500;600&family=Great+Vibes&display=swap" /></noscript>
   <link rel="stylesheet" href="css/styles.css" />
 
   <!-- dados estruturados (Google: negócio local, serviços e perguntas frequentes) -->
@@ -144,6 +146,7 @@
     </button>
   </header>
 
+  <main id="conteudo">
   <!-- HERO -->
   <section class="hero" id="inicio">
     <div class="hero__blob hero__blob--1"></div>
@@ -219,7 +222,7 @@
           <div class="journey__panel" id="journeyPanel" role="tabpanel"></div>
         </div>
 
-        <h4 class="values__title">O que a enfermagem me ensinou <span class="muted">(toca para ver)</span></h4>
+        <h3 class="h4 values__title">O que a enfermagem me ensinou <span class="muted">(toca para ver)</span></h3>
         <div class="values" id="values"></div>
         <p class="values__tip" id="valueTip">Precisão, higiene, responsabilidade, cuidado e atenção às necessidades de cada pessoa.</p>
       </div>
@@ -260,11 +263,11 @@
 
       <div class="studio__panel">
         <div class="ctrl">
-          <h4>Formato</h4>
+          <h3 class="h4">Formato</h3>
           <div class="chips" id="shapeChips"></div>
         </div>
         <div class="ctrl">
-          <h4>Cor</h4>
+          <h3 class="h4">Cor</h3>
           <div class="swatches" id="colorSwatches"></div>
           <label class="custom-color">
             <input type="color" id="customColor" value="#E8588A" /> cor personalizada
@@ -272,7 +275,7 @@
           <p class="polish-info" id="polishInfo" hidden></p>
         </div>
         <div class="ctrl">
-          <h4>Acabamento</h4>
+          <h3 class="h4">Acabamento</h3>
           <div class="chips" id="finishChips"></div>
         </div>
         <div class="ctrl ctrl--row">
@@ -283,7 +286,7 @@
           </label>
         </div>
         <div class="ctrl">
-          <h4>Tom de pele</h4>
+          <h3 class="h4">Tom de pele</h3>
           <div class="swatches swatches--skin" id="skinSwatches"></div>
         </div>
         <div class="studio__actions">
@@ -412,6 +415,8 @@
       </form>
     </div>
   </section>
+
+  </main>
 
   <footer class="footer">
     <img src="assets/logo-256.jpg" alt="Helen Regiani Nails" class="footer__logo" width="110" height="110" loading="lazy" decoding="async" />

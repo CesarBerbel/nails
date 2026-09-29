@@ -707,7 +707,13 @@ function buildGallery() {
     Track.track("gallery_open", designProps(design, { name }));
     toast(`“${name}” aberto no estúdio ✨`);
   });
-  draw("todas");
+  // as 12 mãos só são desenhadas quando a galeria se aproxima do ecrã (página abre mais depressa)
+  const lazy = new IntersectionObserver(([en]) => {
+    if (!en.isIntersecting) return;
+    lazy.disconnect();
+    if (!$("#gallery").children.length) draw("todas");
+  }, { rootMargin: "600px 0px" });
+  lazy.observe($("#galeria"));
 }
 
 /* ---------- quiz ---------- */
