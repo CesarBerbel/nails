@@ -348,8 +348,14 @@ function buildAuth() {
 
   Backend.onAuth(async (user, event) => {
     renderAuth();
-    if (!user) { savedDesigns = []; renderSaved(); return; }
-    if (event === "SIGNED_IN") Track.once("login", { provider: "google" });
+    if (!user) {
+      savedDesigns = [];
+      renderSaved();
+      // sem sessão no site: o Google mostra "Continuar como …" se houver sessão no navegador
+      if (event === "INITIAL_SESSION") Backend.oneTap();
+      return;
+    }
+    if (event === "SIGNED_IN") Track.once("login", { provider: Backend.lastLoginMethod || "google" });
     closeLogin();
     try { savedDesigns = await Backend.listDesigns(); } catch (err) { console.error(err); }
     renderSaved();

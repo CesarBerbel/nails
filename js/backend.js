@@ -22,6 +22,30 @@ const Backend = (() => {
     if (!client) throw new Error("Supabase não configurado (veja CONFIG.supabase em js/config.js).");
   }
 
+  /* ---------- Google One Tap ("Continuar como …") ---------- */
+  let oneTapStarted = false;
+  let lastLoginMethod = null;
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (document.querySelector(`script[src="${src}"]`)) return resolve();
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  // o Google recebe o nonce cifrado (SHA-256); o Supabase confirma com o original
+  async function makeNonce() {
+    const raw = [...crypto.getRandomValues(new Uint8Array(16))].map((b) => b.toString(16).padStart(2, "0")).join("");
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(raw));
+    const hashed = [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
+    return { raw, hashed };
+  }
+
   return {
     enabled: !!client,
     client,
@@ -36,8 +60,36 @@ const Backend = (() => {
       const { error } = await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
       if (error) throw error;
     },
+    /** Mostra o popup "Continuar como …" do Google, se a pessoa tiver sessão no Google e não no site. */
+    async oneTap({ context = "signin" } = {}) {
+      if (!client || !CONFIG.googleClientId || user || oneTapStarted || !crypto.subtle) return;
+      oneTapStarted = true;
+      try {
+        await loadScript("https://accounts.google.com/gsi/client");
+        const nonce = await makeNonce();
+        google.accounts.id.initialize({
+          client_id: CONFIG.googleClientId,
+          nonce: nonce.hashed,
+          context,
+          use_fedcm_for_prompt: true,
+          itp_support: true,
+          cancel_on_tap_outside: true,
+          callback: async ({ credential }) => {
+            lastLoginMethod = "google_onetap";
+            const { error } = await client.auth.signInWithIdToken({ provider: "google", token: credential, nonce: nonce.raw });
+            if (error) console.error("One Tap:", error);
+          },
+        });
+        google.accounts.id.prompt();
+      } catch (err) {
+        console.warn("Google One Tap indisponível:", err);
+      }
+    },
+    get lastLoginMethod() { return lastLoginMethod; },
     async signOut() {
       need();
+      // evita que o One Tap volte a entrar sozinho logo a seguir
+      window.google?.accounts?.id?.disableAutoSelect();
       await client.auth.signOut();
     },
     displayName(u = user) {

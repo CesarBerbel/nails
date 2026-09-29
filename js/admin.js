@@ -755,6 +755,7 @@ document.addEventListener("DOMContentLoaded", () => {
       $("#app").hidden = true;
       $("#loginBtn").hidden = false;
       $("#gateMsg").textContent = "Entra com a conta Google registada como administradora.";
+      Backend.oneTap();
       return;
     }
     top.hidden = false;

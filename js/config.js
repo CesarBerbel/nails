@@ -18,6 +18,9 @@ const CONFIG = {
     anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1a3p4ZHF0amNtZXZ2c2h6eW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1OTc1OTksImV4cCI6MjEwNjE3MzU5OX0.fusR9UFADJ8oxzq1gwqfmsmlKTPMCaDiTRiukbs7joA",
   },
 
+  // Client ID do Google (Google Cloud → Clients). É público. Ativa o popup "Continuar como …" (One Tap).
+  googleClientId: "",
+
   maxSavedDesigns: 5,
   // Mostrar o convite do onboarding na primeira visita (segundos depois de abrir o site; 0 = não mostrar)
   onboardingInviteDelay: 6,
