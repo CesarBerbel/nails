@@ -14,8 +14,8 @@ const CONFIG = {
   // Supabase (Project Settings → API). A "anon key" é pública, pode ficar aqui.
   // Se ficar vazio, o site funciona como antes: sem login, sem unhas guardadas e sem rastreamento.
   supabase: {
-    url: "",
-    anonKey: "",
+    url: "https://bukzxdqtjcmevvshzyoi.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1a3p4ZHF0amNtZXZ2c2h6eW9pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1OTc1OTksImV4cCI6MjEwNjE3MzU5OX0.fusR9UFADJ8oxzq1gwqfmsmlKTPMCaDiTRiukbs7joA",
   },
 
   maxSavedDesigns: 5,
