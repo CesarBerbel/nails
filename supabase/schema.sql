@@ -409,7 +409,7 @@ begin
       'completed', (select count(distinct session_id) from ev where name = 'onboarding_complete'),
       'steps', (
         select jsonb_agg(jsonb_build_object('step', s, 'sessions', (select count(*) from onb where max_step >= s)) order by s)
-        from generate_series(1, 6) s
+        from generate_series(1, 7) s
       ),
       'exits', (
         select coalesce(jsonb_agg(jsonb_build_object('step', k, 'sessions', n) order by k), '[]'::jsonb)
@@ -426,6 +426,11 @@ begin
         select coalesce(jsonb_agg(jsonb_build_object('key', k, 'sessions', n) order by n desc), '[]'::jsonb)
         from (select props ->> 'action' as k, count(distinct session_id) as n
               from ev where name = 'onboarding_action' group by 1) x
+      ),
+      'skins', (
+        select coalesce(jsonb_agg(jsonb_build_object('key', k, 'sessions', n) order by n desc), '[]'::jsonb)
+        from (select props ->> 'skin' as k, count(distinct session_id) as n
+              from ev where name = 'onboarding_complete' and props ->> 'skin' ~ '^#[0-9a-fA-F]{6}$' group by 1) x
       ),
       'services', (
         select coalesce(jsonb_agg(jsonb_build_object('key', k, 'sessions', n) order by n desc), '[]'::jsonb)

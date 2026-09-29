@@ -58,27 +58,62 @@ const DEFAULT_PALETTE = [
   ["Menta", "#A8E0C8"], ["Branco", "#FAFAFA"], ["Preto", "#1E1A1C"], ["Dourado", "#D4AF37"],
 ].map(([name, hex], i) => ({ id: null, name, hex, sort: i + 1, polish_label: null, polish_in_stock: false }));
 
-const FINGERS = [
-  { t: "translate(85,125) rotate(-12) scale(.78)" },
-  { t: "translate(178,72) rotate(-5) scale(.92)", accent: true },
-  { t: "translate(270,50) scale(1)" },
-  { t: "translate(362,72) rotate(6) scale(.94)" },
-  { t: "translate(458,160) rotate(18) scale(.9)" },
+/* ---------- mão em fotografia ----------
+   Foto provisória: Chelson Tamares / Unsplash (licença Unsplash, uso comercial livre).
+   Para trocar pela foto da Helen basta substituir assets/maos/mao.jpg (1040×760) e
+   voltar a medir as unhas em NAILS.
+   Cada unha é desenhada num sistema local: largura x -30..30, base (cutícula) em y≈129 e
+   a ponta para cima. A transformação encaixa o formato "curtinha" exatamente sobre a unha
+   natural da foto; os formatos mais compridos prolongam-se para lá dela. */
+const HAND_PHOTO = "assets/maos/mao.jpg";
+const PHOTO_SKIN = "#E8B896"; // tom de pele da fotografia original
+const NAILS = [
+  { name: "polegar", t: "translate(34.5,165.3) rotate(101.6) scale(0.867,0.839) translate(0,-129)" },
+  { name: "indicador", t: "translate(202.4,245.9) rotate(-175.4) scale(0.619,0.847) translate(0,-129)" },
+  { name: "medio", t: "translate(277.1,268.2) rotate(175.7) scale(0.588,0.809) translate(0,-129)" },
+  { name: "anelar", t: "translate(352.1,225.8) rotate(164.5) scale(0.495,0.732) translate(0,-129)", accent: true },
+  // unhas desfocadas na foto (fora do plano de foco)
+  { name: "mindinho", t: "translate(378.9,176.4) rotate(145.6) scale(0.285,0.332) translate(0,-129)", blur: 1.2 },
+  { name: "baixo1", t: "translate(409.7,357.3) rotate(103.3) scale(0.384,0.586) translate(0,-129)", blur: 1.2 },
+  { name: "baixo2", t: "translate(502.2,312.7) rotate(135.0) scale(0.340,0.361) translate(0,-129)", blur: 1.2 },
 ];
 const HEART = "M0,84 C-15,73 -15,57 -6,57 C-2,57 0,61 0,63 C0,61 2,57 6,57 C15,57 15,73 0,84 Z";
 
+const rgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; };
+
+/** Filtro que muda o tom da pele da foto: multiplica cada canal só onde há pele
+    (a pele é bem mais "quente" — vermelho menos azul — do que o fundo). */
+function skinToneFilter(id, skin) {
+  if (skin.toLowerCase() === PHOTO_SKIN.toLowerCase()) return "";
+  const [r, g, b] = rgb(skin), [pr, pg, pb] = rgb(PHOTO_SKIN);
+  const k = [r / pr, g / pg, b / pb].map((v) => v.toFixed(3));
+  return `
+    <filter id="tone-${id}" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" type="matrix" result="toned"
+        values="${k[0]} 0 0 0 0  0 ${k[1]} 0 0 0  0 0 ${k[2]} 0 0  0 0 0 1 0"/>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="smooth"/>
+      <feColorMatrix in="smooth" type="matrix" result="skin"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  12 0 -12 0 -2.2"/>
+      <feGaussianBlur in="skin" stdDeviation="1.2" result="skinSoft"/>
+      <feComposite in="toned" in2="skinSoft" operator="in" result="tonedSkin"/>
+      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="tonedSkin"/></feMerge>
+    </filter>`;
+}
+
 let uidCounter = 0;
-/** Gera o SVG (conteúdo interno, viewBox 0 0 520 380) de uma mão com o design aplicado. */
+/** Gera o SVG (conteúdo interno, viewBox 0 0 520 380) da mão com o design aplicado. */
 function handMarkup(d, { animate = false } = {}) {
   const id = "n" + ++uidCounter;
   const shape = SHAPES[d.shape] || SHAPES.amendoada;
-  const skin = d.skin || SKINS[0];
-  const edge = shade(d.color, -0.22);
+  const skin = d.skin || PHOTO_SKIN;
+  const edge = shade(d.color, -0.25);
   const heartColor = luminance(d.color) > 0.72 ? "#E8588A" : "#FFFFFF";
-  const nude = "#F6D3D0";
+  const nude = "#F4D6CF";
+  const toneFilter = skinToneFilter(id, skin);
 
   const defs = `
     <defs>
+      ${toneFilter}
       <clipPath id="c-${id}" clipPathUnits="userSpaceOnUse"><path d="${shape.d}"/></clipPath>
       <pattern id="g-${id}" width="12" height="12" patternUnits="userSpaceOnUse">
         <circle cx="3" cy="3" r="1.3" fill="#fff" opacity=".95"/><circle cx="9" cy="7" r="1" fill="#fff" opacity=".7"/>
@@ -91,16 +126,25 @@ function handMarkup(d, { animate = false } = {}) {
       <linearGradient id="o-${id}" x1="0" y1="125" x2="0" y2="0" gradientUnits="userSpaceOnUse">
         <stop offset="0" stop-color="${nude}"/><stop offset=".3" stop-color="${nude}"/><stop offset="1" stop-color="${d.color}"/>
       </linearGradient>
-      <linearGradient id="s-${id}" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="${shade(skin, -0.12)}"/><stop offset=".4" stop-color="${skin}"/>
-        <stop offset=".75" stop-color="${skin}"/><stop offset="1" stop-color="${shade(skin, -0.14)}"/>
+      <!-- curvatura da unha: laterais mais escuras -->
+      <linearGradient id="nc-${id}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#000" stop-opacity=".3"/><stop offset=".22" stop-color="#000" stop-opacity="0"/>
+        <stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".34"/>
       </linearGradient>
-      <filter id="sh-${id}" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#5A2E1E" flood-opacity=".16"/>
+      <!-- sombra junto à cutícula -->
+      <linearGradient id="cu-${id}" x1="0" y1="129" x2="0" y2="95" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#3a1f15" stop-opacity=".28"/><stop offset="1" stop-color="#3a1f15" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="ns-${id}" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation=".35" result="soft"/>
+        <feDropShadow in="soft" dx="0" dy="1" stdDeviation="1.2" flood-color="#3a1f15" flood-opacity=".3"/>
       </filter>
+      <filter id="nb-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.2"/></filter>
     </defs>`;
 
-  const fingers = FINGERS.map((f, i) => {
+  const photo = `<image href="${HAND_PHOTO}" x="0" y="0" width="520" height="380" preserveAspectRatio="xMidYMid slice"${toneFilter ? ` filter="url(#tone-${id})"` : ""}/>`;
+
+  const nails = NAILS.map((f, i) => {
     const isAccent = d.accent && f.accent;
     let baseFill = d.color;
     if (d.finish === "francesinha") baseFill = nude;
@@ -113,23 +157,33 @@ function handMarkup(d, { animate = false } = {}) {
     }
     if (d.finish === "glitter" || isAccent) layers += `<rect x="-40" y="-60" width="80" height="200" fill="url(#g-${id})" opacity="${isAccent && d.finish !== "glitter" ? 0.55 : 1}"/>`;
     if (d.finish === "cromado") layers += `<rect x="-40" y="-60" width="80" height="200" fill="url(#ch-${id})"/>`;
-    if (d.finish === "fosco") layers += `<rect x="-40" y="-60" width="80" height="200" fill="#fff" opacity=".07"/>`;
-    else layers += `<path d="M-19,104 C-23,78 -22,50 -13,30" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="${d.finish === "cromado" ? 0.85 : 0.5}"/>
-                    <circle cx="-8" cy="22" r="2.4" fill="#fff" opacity=".55"/>`;
+    layers += `<rect x="-31" y="-60" width="62" height="200" fill="url(#nc-${id})"/><rect x="-31" y="90" width="62" height="45" fill="url(#cu-${id})"/>`;
+    if (d.finish === "fosco") layers += `<rect x="-40" y="-60" width="80" height="200" fill="#fff" opacity=".08"/>`;
+    else layers += `<path d="M-15,108 C-19,84 -18,58 -11,36" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none" opacity="${d.finish === "cromado" ? 0.85 : 0.6}"/>
+                    <path d="M14,98 C16,86 16,74 13,62" stroke="#fff" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".28"/>
+                    <circle cx="-6" cy="28" r="2.6" fill="#fff" opacity=".6"/>`;
     if (isAccent) layers += `<path d="${HEART}" fill="${heartColor}" transform="translate(0,-4)"/>`;
 
+    // luz e sombra da própria foto por cima da cor (a unha herda o volume real)
+    // (só na zona da unha natural — o formato "curtinha" — e nunca na parte alongada)
+    const strength = d.finish === "fosco" ? 0.45 : luminance(d.color) < 0.25 ? 0.5 : 0.8;
+    const texture = `
+      <clipPath id="w-${id}-${i}" clipPathUnits="userSpaceOnUse"><path d="${shape.d}" transform="${f.t}"/></clipPath>
+      <clipPath id="r-${id}-${i}" clipPathUnits="userSpaceOnUse"><path d="${SHAPES.curta.d}" transform="${f.t}"/></clipPath>
+      <g clip-path="url(#w-${id}-${i})" style="mix-blend-mode:soft-light" opacity="${strength}"><g clip-path="url(#r-${id}-${i})">
+        <image href="${HAND_PHOTO}" x="0" y="0" width="520" height="380" preserveAspectRatio="xMidYMid slice"/>
+      </g></g>`;
+
     return `
-      <g transform="${f.t}">
-        <g class="finger" ${animate ? `style="animation:nailPop .55s ${i * 0.06}s backwards"` : ""}>
-          <path d="M-40,440 L-40,82 C-40,46 -22,36 0,36 C22,36 40,46 40,82 L40,440 Z" fill="url(#s-${id})"/>
-          <g filter="url(#sh-${id})">
-            <path d="${shape.d}" fill="${baseFill}" stroke="${d.finish === "francesinha" ? shade(nude, -0.15) : edge}" stroke-width="1.2" class="nail-fill"/>
-            <g clip-path="url(#c-${id})">${layers}</g>
-          </g>
-          <path d="M-33,123 Q0,146 33,123" stroke="${shade(skin, -0.2)}" stroke-width="2" fill="none" opacity=".55" stroke-linecap="round"/>
+      <g class="nail" ${animate ? `style="animation:nailFade .5s ${i * 0.05}s backwards"` : ""}>
+        <g transform="${f.t}" filter="url(#${f.blur ? "nb" : "ns"}-${id})">
+          <path d="${shape.d}" fill="${baseFill}" stroke="${d.finish === "francesinha" ? shade(nude, -0.15) : edge}" stroke-width=".8" vector-effect="non-scaling-stroke"/>
+          <g clip-path="url(#c-${id})">${layers}</g>
         </g>
+        ${f.blur ? "" : texture}
       </g>`;
   }).join("");
 
-  return defs + fingers;
+  return defs + `<g style="isolation:isolate">${photo}${nails}</g>`;
 }
+

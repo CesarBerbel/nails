@@ -7,7 +7,7 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const db = () => Backend.client;
 
 const STAGES = ["Sem registo", "Entrou no site", "Chegou ao estúdio / onboarding", "Montou uma unha", "Clicou “Quero esta!”", "Começou a marcação", "Enviou pelo WhatsApp"];
-const ONB_STEPS = ["", "Nome", "Serviço", "Formato", "Cor", "Acabamento", "Resultado (concluiu)"];
+const ONB_STEPS = ["", "Nome", "Serviço", "Tom de pele", "Formato", "Cor", "Acabamento", "Resultado (concluiu)"];
 const ONB_ACTIONS = { book: "Marcou com o design", save: "Guardou nas unhas dela", studio: "Foi afinar no estúdio" };
 const ONB_ORIGINS = { convite: "Convite da primeira visita", hero: "Botão “Criar a minha unha”", outro: "Outro" };
 const STAGE_EVENTS = ["page_view", "view_studio", "onboarding_start", "design_customize", "design_choose", "booking_start", "booking_submit", "onboarding_complete"];
@@ -241,10 +241,11 @@ function renderOnboarding() {
   barList($("#onbActions"), (o.actions || []).map((x) => ({ label: ONB_ACTIONS[x.key] || x.key, value: x.sessions })), { unit: " visitas" });
   barList($("#onbOrigins"), (o.origins || []).map((x) => ({ label: ONB_ORIGINS[x.key] || x.key, value: x.sessions })), { unit: " visitas" });
   barList($("#onbServices"), (o.services || []).map((x) => ({ label: x.key, value: x.sessions })), { unit: " visitas" });
+  barList($("#onbSkins"), (o.skins || []).map((x) => ({ label: `Tom ${SKINS.indexOf(x.key.toUpperCase()) + 1 || "?"}`, dot: x.key, value: x.sessions })), { unit: " visitas" });
 }
 function onbCell(s) {
   if (s.onb_done) return `<span class="badge badge--good">concluiu</span>`;
-  if (s.onb_step) return `<span class="stage"><span class="stage__dots">${[1, 2, 3, 4, 5].map((i) => `<i class="${i <= s.onb_step ? "on" : ""}"></i>`).join("")}</span><small>parou em ${ONB_STEPS[s.onb_step]}</small></span>`;
+  if (s.onb_step) return `<span class="stage"><span class="stage__dots">${[1, 2, 3, 4, 5, 6].map((i) => `<i class="${i <= s.onb_step ? "on" : ""}"></i>`).join("")}</span><small>parou em ${ONB_STEPS[s.onb_step]}</small></span>`;
   return `<span class="muted">—</span>`;
 }
 

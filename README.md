@@ -51,6 +51,20 @@ Sem o passo 5 o site funciona exatamente como o original, com o onboarding (sem 
 
 Contactos, serviços e o atraso do convite do onboarding (`onboardingInviteDelay`) ficam em `js/config.js`.
 
+## Fotografia da mão
+
+O estúdio, o onboarding e o painel mostram uma **fotografia real** de mão com as unhas pintadas por cima
+(cor, formato, acabamento e coração), herdando o brilho e a sombra da própria foto. O tom de pele é ajustado
+por um filtro que só atua nas zonas de pele.
+
+A foto atual é provisória: Chelson Tamares no Unsplash
+([imagem original](https://images.unsplash.com/photo-1610992015836-7c249d75782d); licença Unsplash — uso comercial
+livre, sem atribuição obrigatória). Para usar uma foto da Helen:
+
+1. Fotografar a mão com unhas **curtas e claras** (nude), bem iluminada, fundo liso claro.
+2. Recortar para 1040×760 e guardar como `assets/maos/mao.jpg`.
+3. Medir cada unha (base da cutícula, ponta e largura) e atualizar a lista `NAILS` e o `PHOTO_SKIN` em `js/nails.js`.
+
 ## Correr localmente
 
 O login do Google não funciona a abrir o ficheiro diretamente (`file://`). Usar um servidor local:
@@ -86,6 +100,7 @@ Eventos: `page_view`, `section_view`, `view_studio`, `design_customize`, `design
 index.html           site (o da Helen + login, as minhas unhas, onboarding)
 admin.html           painel da Helen
 assets/logo.jpeg     logo
+assets/maos/mao.jpg  fotografia da mão usada no estúdio (1040×760)
 css/styles.css       visual do site (o original da Helen + componentes novos)
 css/admin.css        visual do painel (claro e escuro)
 js/config.js         CONFIGURAÇÃO (edita aqui)

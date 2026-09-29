@@ -372,6 +372,7 @@ function buildAuth() {
 const ONB_STEPS = [
   { key: "nome", label: "Nome" },
   { key: "servico", label: "Serviço" },
+  { key: "pele", label: "Tom de pele" },
   { key: "formato", label: "Formato" },
   { key: "cor", label: "Cor" },
   { key: "acabamento", label: "Acabamento" },
@@ -434,7 +435,7 @@ function renderOnb() {
         <img src="assets/logo.jpeg" alt="" />
         <p class="script">olá, eu sou a Helen</p>
         <h3>Vamos criar a tua unha?</h3>
-        <p class="muted">São só 5 perguntinhas. No fim podes guardar o design ou marcar logo pelo WhatsApp.</p>
+        <p class="muted">São só 6 perguntinhas. No fim podes guardar o design ou marcar logo pelo WhatsApp.</p>
         <input class="onb__input" id="onbName" type="text" maxlength="40" autocomplete="given-name" placeholder="Como te chamas? (opcional)" value="${escapeHtml(onb.name)}" />
       </div>`;
     const input = $("#onbName");
@@ -454,6 +455,20 @@ function renderOnb() {
       onb.service = b.dataset.v;
       $$(".onb__opt", body).forEach((x) => x.classList.toggle("active", x === b));
       setTimeout(() => onbGo(3), 250);
+    });
+  }
+
+  if (key === "pele") {
+    body.innerHTML = `
+      <h3>Qual é o teu tom de pele?</h3>
+      <p>Assim vês como a unha fica na tua mão.</p>
+      <div class="swatches swatches--skin">${SKINS.map((h, n) => `<button type="button" class="swatch${onb.design.skin === h ? " active" : ""}" style="--c:${h}" data-v="${h}" aria-label="Tom de pele ${n + 1}"></button>`).join("")}</div>`;
+    body.querySelector(".swatches").addEventListener("click", (e) => {
+      const b = e.target.closest(".swatch");
+      if (!b) return;
+      onb.design.skin = b.dataset.v;
+      $$(".swatch", body).forEach((x) => x.classList.toggle("active", x === b));
+      onbHand(false);
     });
   }
 
@@ -534,7 +549,7 @@ function renderOnb() {
     Track.track("onboarding_step", { step: i, key });
     if (key === "resultado") {
       onb.done = true;
-      Track.track("onboarding_complete", designProps(onb.design, { service: onb.service, has_name: !!onb.name }));
+      Track.track("onboarding_complete", designProps(onb.design, { service: onb.service, skin: onb.design.skin, has_name: !!onb.name }));
     }
   }
 }
