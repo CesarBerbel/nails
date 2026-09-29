@@ -438,7 +438,7 @@ function renderOnb() {
   if (key === "nome") {
     body.innerHTML = `
       <div class="onb__hello">
-        <img src="assets/logo.jpeg" alt="" />
+        <img src="assets/logo-256.jpg" alt="" width="110" height="110" />
         <p class="script">olá, eu sou a Helen</p>
         <h3>Vamos criar a tua unha?</h3>
         <p class="muted">São só 6 perguntinhas. No fim podes guardar o design ou marcar logo pelo WhatsApp.</p>
