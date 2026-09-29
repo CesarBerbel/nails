@@ -117,7 +117,7 @@ h4, .h4 { font-family: var(--sans); line-height: 1.6; font-size: .75rem; letter-
   padding: 7rem clamp(1rem, 6vw, 6rem) 4rem;
   background: radial-gradient(ellipse at 80% 30%, var(--blush-2), transparent 60%), linear-gradient(180deg, var(--blush), var(--cream));
 }
-.hero__blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; animation: blob 14s ease-in-out infinite alternate; }
+.hero__blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; animation: blob 14s ease-in-out infinite alternate; will-change: transform; }
 .hero__blob--1 { width: 380px; height: 380px; background: #FFC2D6; top: -80px; left: -100px; }
 .hero__blob--2 { width: 300px; height: 300px; background: #F3D1C4; bottom: -60px; right: 10%; animation-delay: -6s; }
 @keyframes blob { to { transform: translate(60px, 40px) scale(1.15); } }
@@ -633,3 +633,8 @@ button.saved__slot:hover { border-color: var(--pink); color: var(--pink-dark); b
 /* unhas pintadas sobre a foto: aparecem suavemente */
 @keyframes nailFade { from { opacity: 0; } }
 .studio__stage #handSvg, .g-item svg, .saved__card svg, .onb__preview svg, .quiz__result svg, .booking__summary svg { border-radius: 16px; }
+
+/* topo: entra com animação CSS (sem esperar pelo JavaScript) para aparecer mais cedo */
+.hero .reveal { opacity: 1; transform: none; animation: heroIn .9s ease both; }
+.hero .hero__logo.reveal { animation-delay: .1s; }
+@keyframes heroIn { from { opacity: .01; transform: translateY(24px); } }

@@ -747,6 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#loginBtn").addEventListener("click", () => Backend.signInWithGoogle().catch((err) => fail(err, "Não foi possível entrar.")));
   $("#logoutBtn").addEventListener("click", async () => { await Backend.signOut(); location.reload(); });
 
+  Backend.init();
   Backend.onAuth(async (user) => {
     const top = $("#topUser");
     if (!user) {

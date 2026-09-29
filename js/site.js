@@ -92,8 +92,10 @@ function renderPolishInfo() {
   el.innerHTML = html;
 }
 
+// a mão (foto com filtros) só é desenhada quando o estúdio se aproxima do ecrã
+let studioReady = false;
 function renderStudio(animate = true) {
-  $("#handSvg").innerHTML = handMarkup(state, { animate: animate && !reduceMotion });
+  if (studioReady) $("#handSvg").innerHTML = handMarkup(state, { animate: animate && !reduceMotion });
   $("#designName").textContent = designLabel(state);
   $$("#shapeChips .chip").forEach((b) => b.classList.toggle("active", b.dataset.v === state.shape));
   $$("#finishChips .chip").forEach((b) => b.classList.toggle("active", b.dataset.v === state.finish));
@@ -179,6 +181,13 @@ function buildStudio() {
   });
 
   renderStudio(false);
+  const lazy = new IntersectionObserver(([en]) => {
+    if (!en.isIntersecting) return;
+    lazy.disconnect();
+    studioReady = true;
+    renderStudio(false);
+  }, { rootMargin: "600px 0px" });
+  lazy.observe($("#estudio"));
 }
 
 function chooseDesign(d, source) {
@@ -202,6 +211,7 @@ function closeLogin() { $("#loginModal").hidden = true; }
 
 async function saveCurrentDesign(e) {
   if (!Backend.enabled) { toast("Login ainda não configurado (vê js/config.js)."); return false; }
+  await Backend.init(); // a sessão pode ainda não ter sido lida
   if (!Backend.user) {
     // o login com o Google sai da página; o design fica guardado para gravar no regresso
     try { sessionStorage.setItem(PENDING_KEY, JSON.stringify(state)); } catch { /* ignore */ }
@@ -1090,6 +1100,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   if (!reduceMotion) setInterval(floatHeart, 900);
+
+  // login e unhas guardadas: o Supabase carrega depois de a página aparecer
+  const later = window.requestIdleCallback || ((fn) => setTimeout(fn, 200));
+  if (document.readyState === "complete") later(() => Backend.init());
+  else addEventListener("load", () => later(() => Backend.init()), { once: true });
 
   // paleta e stock vêm do banco (a Helen edita no painel)
   const [pal, stock] = await Promise.all([Backend.palette(), Backend.stockColors()]);

@@ -3,12 +3,16 @@
    ========================================================= */
 const Backend = (() => {
   const sb = CONFIG.supabase;
-  const client = sb.url && sb.anonKey && window.supabase ? window.supabase.createClient(sb.url, sb.anonKey) : null;
+  const configured = !!(sb.url && sb.anonKey);
+  const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+  let client = null;
+  let initPromise = null;
   let user = null;
   let ready = false;
   const listeners = [];
 
-  if (client) {
+  function createClient() {
+    client = window.supabase.createClient(sb.url, sb.anonKey);
     client.auth.onAuthStateChange((event, session) => {
       user = session?.user || null;
       ready = true;
@@ -16,10 +20,37 @@ const Backend = (() => {
       // o callback do Supabase não pode fazer chamadas ao banco diretamente (deadlock)
       setTimeout(() => listeners.forEach((fn) => fn(user, event)), 0);
     });
+    return client;
   }
 
-  function need() {
-    if (!client) throw new Error("Supabase não configurado (veja CONFIG.supabase em js/config.js).");
+  /** Carrega a biblioteca do Supabase só quando é precisa (a página aparece primeiro). */
+  function init() {
+    if (!configured) return Promise.resolve(null);
+    if (client) return Promise.resolve(client);
+    if (window.supabase) return Promise.resolve(createClient());
+    initPromise ||= loadScript(SUPABASE_JS).then(createClient).catch((err) => {
+      console.error("Não foi possível carregar o Supabase:", err);
+      initPromise = null;
+      return null;
+    });
+    return initPromise;
+  }
+
+  async function need() {
+    const c = await init();
+    if (!c) throw new Error("Supabase não configurado (veja CONFIG.supabase em js/config.js).");
+    return c;
+  }
+
+  /** Chamada simples à API (sem a biblioteca) para dados públicos da página. */
+  async function rpc(fn) {
+    const res = await fetch(`${sb.url}/rest/v1/rpc/${fn}`, {
+      method: "POST",
+      headers: { apikey: sb.anonKey, Authorization: `Bearer ${sb.anonKey}`, "Content-Type": "application/json" },
+      body: "{}",
+    });
+    if (!res.ok) throw new Error(`${fn}: ${res.status}`);
+    return res.json();
   }
 
   /* ---------- Google One Tap ("Continuar como …") ---------- */
@@ -47,8 +78,9 @@ const Backend = (() => {
   }
 
   return {
-    enabled: !!client,
-    client,
+    enabled: configured,
+    init,
+    get client() { return client; },
     get user() { return user; },
     onAuth(fn) {
       listeners.push(fn);
@@ -56,15 +88,16 @@ const Backend = (() => {
     },
 
     async signInWithGoogle(redirectTo = location.origin + location.pathname) {
-      need();
+      const client = await need();
       const { error } = await client.auth.signInWithOAuth({ provider: "google", options: { redirectTo } });
       if (error) throw error;
     },
     /** Mostra o popup "Continuar como …" do Google, se a pessoa tiver sessão no Google e não no site. */
     async oneTap({ context = "signin" } = {}) {
-      if (!client || !CONFIG.googleClientId || user || oneTapStarted || !crypto.subtle) return;
+      if (!configured || !CONFIG.googleClientId || user || oneTapStarted || !crypto.subtle) return;
       oneTapStarted = true;
       try {
+        const client = await need();
         await loadScript("https://accounts.google.com/gsi/client");
         const nonce = await makeNonce();
         google.accounts.id.initialize({
@@ -87,7 +120,7 @@ const Backend = (() => {
     },
     get lastLoginMethod() { return lastLoginMethod; },
     async signOut() {
-      need();
+      const client = await need();
       // evita que o One Tap volte a entrar sozinho logo a seguir
       window.google?.accounts?.id?.disableAutoSelect();
       await client.auth.signOut();
@@ -98,25 +131,23 @@ const Backend = (() => {
     },
 
     async palette() {
-      if (!client) return DEFAULT_PALETTE;
-      const { data, error } = await client.rpc("get_palette");
-      if (error || !data?.length) return DEFAULT_PALETTE;
-      return data;
+      if (!configured) return DEFAULT_PALETTE;
+      try { const data = await rpc("get_palette"); return data?.length ? data : DEFAULT_PALETTE; }
+      catch { return DEFAULT_PALETTE; }
     },
     async stockColors() {
-      if (!client) return [];
-      const { data, error } = await client.rpc("get_stock_colors");
-      return error ? [] : data;
+      if (!configured) return [];
+      try { return await rpc("get_stock_colors"); } catch { return []; }
     },
 
     async listDesigns() {
-      need();
+      const client = await need();
       const { data, error } = await client.from("saved_designs").select("*").order("created_at");
       if (error) throw error;
       return data;
     },
     async saveDesign(d) {
-      need();
+      const client = await need();
       const row = {
         name: d.name || null, shape: d.shape, color: d.color, finish: d.finish,
         accent: !!d.accent, skin: d.skin || null, palette_color_id: d.palette_color_id || null,
@@ -129,12 +160,12 @@ const Backend = (() => {
       return data;
     },
     async renameDesign(id, name) {
-      need();
+      const client = await need();
       const { error } = await client.from("saved_designs").update({ name }).eq("id", id);
       if (error) throw error;
     },
     async deleteDesign(id) {
-      need();
+      const client = await need();
       const { error } = await client.from("saved_designs").delete().eq("id", id);
       if (error) throw error;
     },
