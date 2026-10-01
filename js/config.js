@@ -19,7 +19,7 @@ const CONFIG = {
   },
 
   // Client ID do Google (Google Cloud → Clients). É público. Ativa o popup "Continuar como …" (One Tap).
-  googleClientId: "",
+  googleClientId: "674352229670-qqauqqdo5nos3sgu15sq9mofdpr8e1ig.apps.googleusercontent.com",
 
   maxSavedDesigns: 5,
   // Mostrar o convite do onboarding na primeira visita (segundos depois de abrir o site; 0 = não mostrar)
