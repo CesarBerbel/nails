@@ -81,23 +81,22 @@ const HEART = "M0,84 C-15,73 -15,57 -6,57 C-2,57 0,61 0,63 C0,61 2,57 6,57 C15,5
 
 const rgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]; };
 
-/** Filtro que muda o tom da pele da foto: multiplica cada canal só onde há pele
-    (a pele é bem mais "quente" — vermelho menos azul — do que o fundo). */
+// máscara da pele (branco = pele) feita à medida da foto: inclui os realces claros dos dedos,
+// que pela cor se confundiam com o fundo e ficavam por pintar nos tons escuros
+const HAND_SKIN_MASK = "assets/maos/mao-pele.png";
+
+/** Filtro + máscara que mudam o tom da pele da foto: multiplicam cada canal só onde há pele. */
 function skinToneFilter(id, skin) {
   if (skin.toLowerCase() === PHOTO_SKIN.toLowerCase()) return "";
   const [r, g, b] = rgb(skin), [pr, pg, pb] = rgb(PHOTO_SKIN);
   const k = [r / pr, g / pg, b / pb].map((v) => v.toFixed(3));
   return `
     <filter id="tone-${id}" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-      <feColorMatrix in="SourceGraphic" type="matrix" result="toned"
-        values="${k[0]} 0 0 0 0  0 ${k[1]} 0 0 0  0 0 ${k[2]} 0 0  0 0 0 1 0"/>
-      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="smooth"/>
-      <feColorMatrix in="smooth" type="matrix" result="skin"
-        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  12 0 -12 0 -2.2"/>
-      <feGaussianBlur in="skin" stdDeviation="1.2" result="skinSoft"/>
-      <feComposite in="toned" in2="skinSoft" operator="in" result="tonedSkin"/>
-      <feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="tonedSkin"/></feMerge>
-    </filter>`;
+      <feColorMatrix type="matrix" values="${k[0]} 0 0 0 0  0 ${k[1]} 0 0 0  0 0 ${k[2]} 0 0  0 0 0 1 0"/>
+    </filter>
+    <mask id="sk-${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="520" height="380">
+      <image href="${HAND_SKIN_MASK}" x="0" y="0" width="520" height="380" preserveAspectRatio="xMidYMid slice"/>
+    </mask>`;
 }
 
 let uidCounter = 0;
@@ -142,7 +141,8 @@ function handMarkup(d, { animate = false } = {}) {
       <filter id="nb-${id}" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.2"/></filter>
     </defs>`;
 
-  const photo = `<image href="${HAND_PHOTO}" x="0" y="0" width="520" height="380" preserveAspectRatio="xMidYMid slice"${toneFilter ? ` filter="url(#tone-${id})"` : ""}/>`;
+  const photoImg = (attrs = "") => `<image href="${HAND_PHOTO}" x="0" y="0" width="520" height="380" preserveAspectRatio="xMidYMid slice"${attrs}/>`;
+  const photo = photoImg() + (toneFilter ? `<g mask="url(#sk-${id})">${photoImg(` filter="url(#tone-${id})"`)}</g>` : "");
 
   const nails = NAILS.map((f, i) => {
     const isAccent = d.accent && f.accent;

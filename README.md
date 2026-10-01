@@ -64,6 +64,8 @@ livre, sem atribuição obrigatória). Para usar uma foto da Helen:
 1. Fotografar a mão com unhas **curtas e claras** (nude), bem iluminada, fundo liso claro.
 2. Recortar para 1040×760 e guardar como `assets/maos/mao.jpg`.
 3. Medir cada unha (base da cutícula, ponta e largura) e atualizar a lista `NAILS` e o `PHOTO_SKIN` em `js/nails.js`.
+4. Refazer `assets/maos/mao-pele.png` (520×380, tons de cinzento: branco onde há pele, preto no fundo) — é a máscara
+   usada para trocar o tom de pele.
 
 ## Correr localmente
 
@@ -101,6 +103,7 @@ index.html           site (o da Helen + login, as minhas unhas, onboarding)
 admin.html           painel da Helen
 assets/logo.jpeg     logo
 assets/maos/mao.jpg  fotografia da mão usada no estúdio (1040×760)
+assets/maos/mao-pele.png  máscara da pele dessa foto (troca do tom de pele)
 css/styles.css       visual do site (o original da Helen + componentes novos)
 css/admin.css        visual do painel (claro e escuro)
 js/config.js         CONFIGURAÇÃO (edita aqui)
