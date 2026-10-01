@@ -607,6 +607,9 @@ button.saved__slot:hover { border-color: var(--pink); color: var(--pink-dark); b
 .onb__actions { display: grid; gap: .6rem; margin-top: 1.2rem; }
 .onb__nav { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 1.4rem; }
 .onb__nav .btn { min-width: 150px; }
+/* primeiro passo: "Começar" e "Começar com o Google" empilhados */
+.onb__nav--start { flex-direction: column; align-items: stretch; gap: .6rem; }
+.onb__nav--start #onbBack { display: none; }
 .onb__skip { background: none; border: 0; color: var(--muted); font-size: .85rem; text-decoration: underline; }
 
 /* convite para começar (aparece na primeira visita) */

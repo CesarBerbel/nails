@@ -367,6 +367,7 @@ function buildAuth() {
     }
     if (event === "SIGNED_IN") Track.once("login", { provider: Backend.lastLoginMethod || "google" });
     closeLogin();
+    resumeOnboardingAfterLogin();
     try { savedDesigns = await Backend.listDesigns(); } catch (err) { console.error(err); }
     renderSaved();
 
@@ -396,6 +397,29 @@ const ONB_STEPS = [
 ];
 const onb = { open: false, step: 1, maxTracked: 0, name: "", service: "", design: null, done: false };
 const ONB_SEEN = "nails_onb_seen";
+const ONB_RESUME = "nails_onb_resume"; // "Começar com o Google": o login sai da página e o onboarding retoma no regresso
+
+async function onbStartWithGoogle() {
+  Track.track("onboarding_action", { action: "google" });
+  try { sessionStorage.setItem(ONB_RESUME, JSON.stringify({ from: onb.from, name: onb.name })); } catch { /* ignore */ }
+  try { await Backend.signInWithGoogle(); }
+  catch (err) {
+    console.error(err);
+    try { sessionStorage.removeItem(ONB_RESUME); } catch { /* ignore */ }
+    toast("Não foi possível entrar agora.");
+  }
+}
+
+function resumeOnboardingAfterLogin() {
+  let resume = null;
+  try { resume = JSON.parse(sessionStorage.getItem(ONB_RESUME)); sessionStorage.removeItem(ONB_RESUME); } catch { /* ignore */ }
+  if (resume) {
+    if (!onb.open) openOnboarding(resume.from || "google");
+    onb.name = resume.name || onb.name || Backend.displayName().split(" ")[0];
+    if (onb.name.includes("@")) onb.name = "";
+    onbGo(2);
+  } else if (onb.open && onb.step === 1) renderOnb(); // entrou por outro lado (One Tap): esconde o botão do Google
+}
 
 function openOnboarding(from) {
   hideInvite();
@@ -443,6 +467,8 @@ function renderOnb() {
   $("#onbBack").style.visibility = i > 1 && key !== "resultado" ? "visible" : "hidden";
   $("#onbNav").hidden = key === "resultado";
   $("#onbNext").textContent = i === 1 ? "Começar ♥" : i === total - 1 ? "Ver a minha unha ✨" : "Continuar";
+  $("#onbNav").classList.toggle("onb__nav--start", i === 1);
+  $("#onbGoogle").hidden = !(i === 1 && Backend.enabled && !Backend.user);
   const hi = onb.name ? `${escapeHtml(onb.name)}, ` : "";
 
   if (key === "nome") {
@@ -596,6 +622,7 @@ function buildOnboarding() {
   $("#onbClose").addEventListener("click", closeOnboarding);
   $("#onb").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeOnboarding(); });
   $("#onbNext").addEventListener("click", () => onbGo(onb.step + 1));
+  $("#onbGoogle").addEventListener("click", onbStartWithGoogle);
   $("#onbBack").addEventListener("click", () => onbGo(onb.step - 1));
 
   const dismiss = () => {
