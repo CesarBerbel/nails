@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://helenregianinails.pt/</loc>
-    <lastmod>2026-09-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://helenregianinails.pt/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helenregianinails.pt/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helenregianinails.pt/" />
+    <lastmod>2026-10-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -10,8 +13,32 @@
     </image:image>
   </url>
   <url>
+    <loc>https://helenregianinails.pt/en/</loc>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://helenregianinails.pt/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helenregianinails.pt/en/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helenregianinails.pt/" />
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://helenregianinails.pt/assets/og-image.jpg</image:loc>
+    </image:image>
+  </url>
+  <url>
     <loc>https://helenregianinails.pt/privacidade.html</loc>
-    <lastmod>2026-09-30</lastmod>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://helenregianinails.pt/privacidade.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helenregianinails.pt/en/privacy.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helenregianinails.pt/privacidade.html" />
+    <lastmod>2026-10-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://helenregianinails.pt/en/privacy.html</loc>
+    <xhtml:link rel="alternate" hreflang="pt-PT" href="https://helenregianinails.pt/privacidade.html" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://helenregianinails.pt/en/privacy.html" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://helenregianinails.pt/privacidade.html" />
+    <lastmod>2026-10-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

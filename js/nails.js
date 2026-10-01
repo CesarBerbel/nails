@@ -42,14 +42,15 @@ function escapeHtml(s) {
 }
 
 const SHAPES = {
-  amendoada: { label: "Amendoada", d: "M-30,120 L-30,55 C-30,25 -10,-8 0,-12 C10,-8 30,25 30,55 L30,120 Q0,138 -30,120 Z", tip: 28 },
-  bailarina: { label: "Bailarina", d: "M-30,120 L-30,60 L-16,-14 L16,-14 L30,60 L30,120 Q0,138 -30,120 Z", tip: 22 },
-  stiletto: { label: "Stiletto", d: "M-30,120 L-30,65 C-30,35 -6,-10 0,-40 C6,-10 30,35 30,65 L30,120 Q0,138 -30,120 Z", tip: 22 },
-  quadrada: { label: "Quadrada", d: "M-30,120 L-30,14 Q-30,6 -22,6 L22,6 Q30,6 30,14 L30,120 Q0,138 -30,120 Z", tip: 30 },
-  redonda: { label: "Redonda", d: "M-30,120 L-30,40 Q-30,5 0,5 Q30,5 30,40 L30,120 Q0,138 -30,120 Z", tip: 30 },
-  curta: { label: "Curtinha", d: "M-30,120 L-30,52 Q-30,30 0,30 Q30,30 30,52 L30,120 Q0,138 -30,120 Z", tip: 46 },
+  amendoada: { label: "Amendoada", en: "Almond", d: "M-30,120 L-30,55 C-30,25 -10,-8 0,-12 C10,-8 30,25 30,55 L30,120 Q0,138 -30,120 Z", tip: 28 },
+  bailarina: { label: "Bailarina", en: "Coffin", d: "M-30,120 L-30,60 L-16,-14 L16,-14 L30,60 L30,120 Q0,138 -30,120 Z", tip: 22 },
+  stiletto: { label: "Stiletto", en: "Stiletto", d: "M-30,120 L-30,65 C-30,35 -6,-10 0,-40 C6,-10 30,35 30,65 L30,120 Q0,138 -30,120 Z", tip: 22 },
+  quadrada: { label: "Quadrada", en: "Square", d: "M-30,120 L-30,14 Q-30,6 -22,6 L22,6 Q30,6 30,14 L30,120 Q0,138 -30,120 Z", tip: 30 },
+  redonda: { label: "Redonda", en: "Round", d: "M-30,120 L-30,40 Q-30,5 0,5 Q30,5 30,40 L30,120 Q0,138 -30,120 Z", tip: 30 },
+  curta: { label: "Curtinha", en: "Short", d: "M-30,120 L-30,52 Q-30,30 0,30 Q30,30 30,52 L30,120 Q0,138 -30,120 Z", tip: 46 },
 };
 const FINISHES = { brilho: "Brilho", fosco: "Fosco", glitter: "Glitter", francesinha: "Francesinha", cromado: "Cromado", ombre: "Ombré" };
+const FINISHES_EN = { brilho: "Glossy", fosco: "Matte", glitter: "Glitter", francesinha: "French", cromado: "Chrome", ombre: "Ombré" };
 const SKINS = ["#F6D5C3", "#E8B896", "#C98E6B", "#9A6446", "#6B4130"];
 // Paleta da Helen, usada quando o Supabase não está configurado (no banco é editável pelo painel)
 const DEFAULT_PALETTE = [
@@ -65,7 +66,7 @@ const DEFAULT_PALETTE = [
    Cada unha é desenhada num sistema local: largura x -30..30, base (cutícula) em y≈129 e
    a ponta para cima. A transformação encaixa o formato "curtinha" exatamente sobre a unha
    natural da foto; os formatos mais compridos prolongam-se para lá dela. */
-const HAND_PHOTO = "assets/maos/mao.jpg";
+const HAND_PHOTO = "/assets/maos/mao.jpg"; // caminho absoluto: serve também a versão /en/
 const PHOTO_SKIN = "#E8B896"; // tom de pele da fotografia original
 const NAILS = [
   { name: "polegar", t: "translate(34.5,165.3) rotate(101.6) scale(0.867,0.839) translate(0,-129)" },
@@ -83,7 +84,7 @@ const rgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [(n >> 16) /
 
 // máscara da pele (branco = pele) feita à medida da foto: inclui os realces claros dos dedos,
 // que pela cor se confundiam com o fundo e ficavam por pintar nos tons escuros
-const HAND_SKIN_MASK = "assets/maos/mao-pele.png";
+const HAND_SKIN_MASK = "/assets/maos/mao-pele.png";
 
 /** Filtro + máscara que mudam o tom da pele da foto: multiplicam cada canal só onde há pele. */
 function skinToneFilter(id, skin) {

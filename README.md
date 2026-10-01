@@ -100,6 +100,9 @@ Eventos: `page_view`, `section_view`, `view_studio`, `design_customize`, `design
 
 ```
 index.html           site (o da Helen + login, as minhas unhas, onboarding)
+en/index.html        versão inglesa do site (os textos do JavaScript estão em L("pt", "en") em js/site.js
+                     e em "en" nos serviços de js/config.js)
+en/privacy.html      política de privacidade em inglês
 admin.html           painel da Helen
 assets/logo.jpeg     logo
 assets/maos/mao.jpg  fotografia da mão usada no estúdio (1040×760)

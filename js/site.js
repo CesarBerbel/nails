@@ -3,7 +3,29 @@
    (+ login Google, unhas guardadas, verniz do stock, onboarding e rastreamento)
    ========================================================= */
 
-const SERVICE_CATS = { todos: "Todos", naturais: "Unhas naturais", fortalecimento: "Fortalecimento", extensao: "Extensão", nailart: "Nail Art" };
+// idioma da página: a versão inglesa está em /en/ (<html lang="en">); L("texto pt", "english text")
+const EN = document.documentElement.lang.startsWith("en");
+const L = (pt, en) => (EN ? en : pt);
+
+const SERVICE_CATS = EN
+  ? { todos: "All", naturais: "Natural nails", fortalecimento: "Strengthening", extensao: "Extensions", nailart: "Nail Art" }
+  : { todos: "Todos", naturais: "Unhas naturais", fortalecimento: "Fortalecimento", extensao: "Extensão", nailart: "Nail Art" };
+
+// os serviços são guardados e registados pelo nome em português; o texto mostrado segue o idioma
+const ADVICE = "Ainda não sei / quero aconselhamento";
+const svcText = (s) => (EN && s.en ? s.en : s);
+function serviceLabel(name) {
+  if (name === ADVICE) return L(ADVICE, "Not sure yet / I'd like advice");
+  const s = CONFIG.services.find((x) => x.name === name);
+  return s ? svcText(s).name : name;
+}
+const shapeLabel = (k) => (EN ? SHAPES[k].en : SHAPES[k].label);
+const finishLabel = (k) => (EN ? FINISHES_EN : FINISHES)[k];
+// nomes das cores da paleta (editados no painel, em português)
+const COLOR_EN = {
+  "Rosa Helen": "Helen Pink", "Rosa bebé": "Baby pink", "Nude": "Nude", "Chocolate": "Chocolate", "Vermelho": "Red",
+  "Vinho": "Burgundy", "Lilás": "Lilac", "Azul bebé": "Baby blue", "Menta": "Mint", "Branco": "White", "Preto": "Black", "Dourado": "Gold",
+};
 
 /* ---------- helpers ---------- */
 const $ = (s, el = document) => el.querySelector(s);
@@ -41,10 +63,13 @@ let palette = DEFAULT_PALETTE;
 let stockColors = [];
 
 const paletteMatch = (hex) => palette.find((c) => c.hex.toLowerCase() === hex.toLowerCase()) || null;
-const colorName = (hex) => paletteMatch(hex)?.name || "Cor exclusiva";
+function colorName(hex) {
+  const name = paletteMatch(hex)?.name;
+  return name ? (EN && COLOR_EN[name]) || name : L("Cor exclusiva", "Custom colour");
+}
 
 function designLabel(d) {
-  return `${colorName(d.color)} · ${SHAPES[d.shape].label} · ${FINISHES[d.finish]}${d.accent ? " · com coração" : ""}`;
+  return `${colorName(d.color)} · ${shapeLabel(d.shape)} · ${finishLabel(d.finish)}${d.accent ? L(" · com coração", " · with heart") : ""}`;
 }
 
 /** Verniz do stock para a cor: o ligado à cor da paleta ou, numa cor exclusiva, o mais parecido. */
@@ -59,7 +84,7 @@ function polishFor(d) {
 /** Propriedades do design enviadas ao rastreamento. */
 function designProps(d, extra = {}) {
   return {
-    shape: d.shape, color: d.color.toLowerCase(), color_name: colorName(d.color), finish: d.finish,
+    shape: d.shape, color: d.color.toLowerCase(), color_name: paletteMatch(d.color)?.name || "Cor exclusiva", finish: d.finish,
     accent: !!d.accent, palette_color_id: paletteMatch(d.color)?.id || null, polish: polishFor(d)?.label || null, ...extra,
   };
 }
@@ -68,10 +93,10 @@ function designProps(d, extra = {}) {
 function polishInfoHtml(d, { allowUse = false } = {}) {
   const polish = polishFor(d);
   if (!polish) {
-    return stockColors.length && !paletteMatch(d.color) ? "🧴 Cor exclusiva — a Helen encontra o tom mais próximo no atendimento." : "";
+    return stockColors.length && !paletteMatch(d.color) ? L("🧴 Cor exclusiva — a Helen encontra o tom mais próximo no atendimento.", "🧴 Custom colour — Helen will find the closest shade at your appointment.") : "";
   }
-  if (polish.exact) return `🧴 Verniz: <strong>${escapeHtml(polish.label)}</strong>${polish.inStock ? "" : ` <span class="muted">(sob consulta)</span>`}`;
-  return `🧴 O mais parecido que a Helen tem: <strong>${escapeHtml(polish.label)}</strong>${allowUse ? ` <button type="button" class="link js-use-polish" data-hex="${polish.hex}" style="--c:${polish.hex}">usar esta cor</button>` : ""}`;
+  if (polish.exact) return `🧴 ${L("Verniz", "Polish")}: <strong>${escapeHtml(polish.label)}</strong>${polish.inStock ? "" : ` <span class="muted">${L("(sob consulta)", "(on request)")}</span>`}`;
+  return `🧴 ${L("O mais parecido que a Helen tem", "The closest one Helen has")}: <strong>${escapeHtml(polish.label)}</strong>${allowUse ? ` <button type="button" class="link js-use-polish" data-hex="${polish.hex}" style="--c:${polish.hex}">${L("usar esta cor", "use this colour")}</button>` : ""}`;
 }
 
 /* ---------- estado do estúdio ---------- */
@@ -114,11 +139,11 @@ function setDesign(d, { scroll = false } = {}) {
 }
 
 const swatchesHtml = () => palette.map((c) =>
-  `<button type="button" class="swatch" style="--c:${c.hex}" data-v="${c.hex}" title="${escapeHtml(c.name)}" aria-label="${escapeHtml(c.name)}"></button>`).join("");
+  `<button type="button" class="swatch" style="--c:${c.hex}" data-v="${c.hex}" title="${escapeHtml(colorName(c.hex))}" aria-label="${escapeHtml(colorName(c.hex))}"></button>`).join("");
 
 function buildStudio() {
-  const mkChips = (el, obj, key) => {
-    el.innerHTML = Object.entries(obj).map(([k, v]) => `<button type="button" class="chip" data-v="${k}">${typeof v === "string" ? v : v.label}</button>`).join("");
+  const mkChips = (el, obj, key, label) => {
+    el.innerHTML = Object.keys(obj).map((k) => `<button type="button" class="chip" data-v="${k}">${label(k)}</button>`).join("");
     el.addEventListener("click", (e) => {
       const b = e.target.closest(".chip");
       if (!b) return;
@@ -127,8 +152,8 @@ function buildStudio() {
       renderStudio();
     });
   };
-  mkChips($("#shapeChips"), SHAPES, "shape");
-  mkChips($("#finishChips"), FINISHES, "finish");
+  mkChips($("#shapeChips"), SHAPES, "shape", shapeLabel);
+  mkChips($("#finishChips"), FINISHES, "finish", finishLabel);
 
   const colors = $("#colorSwatches");
   colors.innerHTML = swatchesHtml();
@@ -150,7 +175,7 @@ function buildStudio() {
   });
 
   const skins = $("#skinSwatches");
-  skins.innerHTML = SKINS.map((h, i) => `<button type="button" class="swatch" style="--c:${h}" data-v="${h}" aria-label="Tom de pele ${i + 1}"></button>`).join("");
+  skins.innerHTML = SKINS.map((h, i) => `<button type="button" class="swatch" style="--c:${h}" data-v="${h}" aria-label="${L("Tom de pele", "Skin tone")} ${i + 1}"></button>`).join("");
   skins.addEventListener("click", (e) => {
     const b = e.target.closest(".swatch");
     if (!b) return;
@@ -194,7 +219,7 @@ function chooseDesign(d, source) {
   bookedDesign = { ...d };
   updateBookingSummary();
   Track.track("design_choose", designProps(d, { source }));
-  toast("Design guardado na marcação ♥");
+  toast(L("Design guardado na marcação ♥", "Design added to your booking ♥"));
   setTimeout(() => $("#agendar").scrollIntoView(smooth()), 350);
 }
 
@@ -220,7 +245,7 @@ async function saveCurrentDesign(e) {
     return false;
   }
   if (savedDesigns.length >= CONFIG.maxSavedDesigns) {
-    toast(`Já tens ${CONFIG.maxSavedDesigns} unhas guardadas. Apaga uma para guardares esta.`);
+    toast(L(`Já tens ${CONFIG.maxSavedDesigns} unhas guardadas. Apaga uma para guardares esta.`, `You already have ${CONFIG.maxSavedDesigns} saved designs. Delete one to save this one.`));
     $("#minhas").scrollIntoView(smooth());
     return false;
   }
@@ -229,17 +254,17 @@ async function saveCurrentDesign(e) {
   try {
     const row = await Backend.saveDesign({
       ...state,
-      name: `${colorName(state.color)} ${SHAPES[state.shape].label.toLowerCase()}`,
+      name: `${colorName(state.color)} ${shapeLabel(state.shape).toLowerCase()}`,
       palette_color_id: paletteMatch(state.color)?.id,
     });
     savedDesigns.push(row);
     renderSaved();
     Track.track("design_save", designProps(state));
-    toast(`Guardada! ${savedDesigns.length} de ${CONFIG.maxSavedDesigns} ♥`);
+    toast(L(`Guardada! ${savedDesigns.length} de ${CONFIG.maxSavedDesigns} ♥`, `Saved! ${savedDesigns.length} of ${CONFIG.maxSavedDesigns} ♥`));
     if (e) burst(e.clientX, e.clientY, 12);
     return true;
   } catch (err) {
-    toast(err.limit ? `Chegaste ao limite de ${CONFIG.maxSavedDesigns} unhas.` : "Não foi possível guardar agora. Tenta outra vez.");
+    toast(err.limit ? L(`Chegaste ao limite de ${CONFIG.maxSavedDesigns} unhas.`, `You've reached the limit of ${CONFIG.maxSavedDesigns} designs.`) : L("Não foi possível guardar agora. Tenta outra vez.", "Couldn't save right now. Please try again."));
     console.error(err);
     return false;
   } finally {
@@ -255,29 +280,29 @@ function renderSaved() {
   $("#savedCta").hidden = !!user;
 
   if (!user) {
-    $("#savedHint").textContent = `Entra com o Google para guardares até ${max} unhas e voltares a elas quando quiseres.`;
+    $("#savedHint").textContent = L(`Entra com o Google para guardares até ${max} unhas e voltares a elas quando quiseres.`, `Sign in with Google to save up to ${max} designs and come back to them whenever you like.`);
     grid.innerHTML = Array.from({ length: max }, () => `<div class="saved__slot saved__slot--ghost"><span>♡</span></div>`).join("");
     return;
   }
   const first = Backend.displayName().split(" ")[0];
   $("#savedHint").textContent = savedDesigns.length
-    ? `${first}, tens ${savedDesigns.length} de ${max} unhas guardadas.`
-    : `${first}, monta uma unha no estúdio e toca em “♡ Guardar”.`;
+    ? L(`${first}, tens ${savedDesigns.length} de ${max} unhas guardadas.`, `${first}, you have ${savedDesigns.length} of ${max} designs saved.`)
+    : L(`${first}, monta uma unha no estúdio e toca em “♡ Guardar”.`, `${first}, create a design in the studio and tap “♡ Save”.`);
 
   const cards = savedDesigns.map((d) => `
     <article class="saved__card" data-id="${d.id}">
-      <button type="button" class="saved__del" data-act="del" aria-label="Apagar">×</button>
+      <button type="button" class="saved__del" data-act="del" aria-label="${L("Apagar", "Delete")}">×</button>
       <svg viewBox="0 0 520 380" aria-hidden="true">${handMarkup(d)}</svg>
       <h3>${escapeHtml(d.name || designLabel(d))}</h3>
       <p>${escapeHtml(designLabel(d))}</p>
       <div class="saved__actions">
-        <button type="button" class="chip" data-act="open">Abrir</button>
-        <button type="button" class="chip" data-act="rename">Mudar nome</button>
-        <button type="button" class="chip chip--solid" data-act="book">Marcar</button>
+        <button type="button" class="chip" data-act="open">${L("Abrir", "Open")}</button>
+        <button type="button" class="chip" data-act="rename">${L("Mudar nome", "Rename")}</button>
+        <button type="button" class="chip chip--solid" data-act="book">${L("Marcar", "Book")}</button>
       </div>
     </article>`);
   const free = Array.from({ length: Math.max(0, max - savedDesigns.length) }, () =>
-    `<button type="button" class="saved__slot" data-act="new"><span>+</span>espaço livre</button>`);
+    `<button type="button" class="saved__slot" data-act="new"><span>+</span>${L("espaço livre", "free slot")}</button>`);
   grid.innerHTML = cards.join("") + free.join("");
 }
 
@@ -297,22 +322,22 @@ function buildSaved() {
     const card = btn.closest(".saved__card");
     const d = savedDesigns.find((x) => x.id === card?.dataset.id);
     if (!d) return;
-    if (act === "open") { setDesign(d, { scroll: true }); toast(`“${d.name}” aberta no estúdio ✨`); }
+    if (act === "open") { setDesign(d, { scroll: true }); toast(L(`“${d.name}” aberta no estúdio ✨`, `“${d.name}” opened in the studio ✨`)); }
     if (act === "book") chooseDesign({ shape: d.shape, color: d.color, finish: d.finish, accent: d.accent, skin: d.skin || state.skin }, "minhas_unhas");
     if (act === "rename") {
-      const name = prompt("Nome desta unha:", d.name || "");
+      const name = prompt(L("Nome desta unha:", "Name for this design:"), d.name || "");
       if (name == null || !name.trim()) return;
       try { await Backend.renameDesign(d.id, name.trim().slice(0, 60)); d.name = name.trim().slice(0, 60); renderSaved(); }
-      catch { toast("Não foi possível mudar o nome."); }
+      catch { toast(L("Não foi possível mudar o nome.", "Couldn't rename it.")); }
     }
     if (act === "del") {
-      if (!confirm(`Apagar “${d.name}”?`)) return;
+      if (!confirm(L(`Apagar “${d.name}”?`, `Delete “${d.name}”?`))) return;
       try {
         await Backend.deleteDesign(d.id);
         savedDesigns = savedDesigns.filter((x) => x.id !== d.id);
         Track.track("design_delete", designProps(d));
         renderSaved();
-      } catch { toast("Não foi possível apagar."); }
+      } catch { toast(L("Não foi possível apagar.", "Couldn't delete it.")); }
     }
   });
 }
@@ -339,7 +364,7 @@ function buildAuth() {
   $$(".js-login").forEach((b) => b.addEventListener("click", () => { Track.track("login_open", { from: "minhas" }); openLogin(); }));
   $("#googleBtn").addEventListener("click", async () => {
     try { await Backend.signInWithGoogle(); }
-    catch (err) { console.error(err); toast("Não foi possível entrar agora."); }
+    catch (err) { console.error(err); toast(L("Não foi possível entrar agora.", "Couldn't sign in right now.")); }
   });
   $("#loginModal").addEventListener("click", (e) => { if (e.target === e.currentTarget || e.target.closest("[data-close]")) closeLogin(); });
 
@@ -353,7 +378,7 @@ function buildAuth() {
   $("#logoutBtn").addEventListener("click", async () => {
     menu.hidden = true;
     await Backend.signOut();
-    toast("Saíste da tua conta.");
+    toast(L("Saíste da tua conta.", "You've signed out."));
   });
 
   Backend.onAuth(async (user, event) => {
@@ -406,7 +431,7 @@ async function onbStartWithGoogle() {
   catch (err) {
     console.error(err);
     try { sessionStorage.removeItem(ONB_RESUME); } catch { /* ignore */ }
-    toast("Não foi possível entrar agora.");
+    toast(L("Não foi possível entrar agora.", "Couldn't sign in right now."));
   }
 }
 
@@ -461,12 +486,12 @@ function renderOnb() {
   void body.offsetWidth;
   body.style.animation = "";
   $("#onbBar").style.width = `${((i - 1) / (total - 1)) * 100}%`;
-  $("#onbCount").textContent = key === "resultado" ? "Pronto! ♥" : `Passo ${i} de ${total - 1}`;
+  $("#onbCount").textContent = key === "resultado" ? L("Pronto! ♥", "Done! ♥") : L(`Passo ${i} de ${total - 1}`, `Step ${i} of ${total - 1}`);
   $("#onbPreview").hidden = i < 3;
   if (i >= 3) onbHand();
   $("#onbBack").style.visibility = i > 1 && key !== "resultado" ? "visible" : "hidden";
   $("#onbNav").hidden = key === "resultado";
-  $("#onbNext").textContent = i === 1 ? "Começar ♥" : i === total - 1 ? "Ver a minha unha ✨" : "Continuar";
+  $("#onbNext").textContent = i === 1 ? L("Começar ♥", "Start ♥") : i === total - 1 ? L("Ver a minha unha ✨", "See my nails ✨") : L("Continuar", "Continue");
   $("#onbNav").classList.toggle("onb__nav--start", i === 1);
   $("#onbGoogle").hidden = !(i === 1 && Backend.enabled && !Backend.user);
   const hi = onb.name ? `${escapeHtml(onb.name)}, ` : "";
@@ -474,11 +499,11 @@ function renderOnb() {
   if (key === "nome") {
     body.innerHTML = `
       <div class="onb__hello">
-        <img src="assets/logo-256.jpg" alt="" width="110" height="110" />
-        <p class="script">olá, eu sou a Helen</p>
-        <h3>Vamos criar a tua unha?</h3>
-        <p class="muted">São só 6 perguntinhas. No fim podes guardar o design ou marcar logo pelo WhatsApp.</p>
-        <input class="onb__input" id="onbName" type="text" maxlength="40" autocomplete="given-name" placeholder="Como te chamas? (opcional)" value="${escapeHtml(onb.name)}" />
+        <img src="/assets/logo-256.jpg" alt="" width="110" height="110" />
+        <p class="script">${L("olá, eu sou a Helen", "hi, I'm Helen")}</p>
+        <h3>${L("Vamos criar a tua unha?", "Shall we design your nails?")}</h3>
+        <p class="muted">${L("São só 6 perguntinhas. No fim podes guardar o design ou marcar logo pelo WhatsApp.", "Just 6 quick questions. At the end you can save the design or book straight away on WhatsApp.")}</p>
+        <input class="onb__input" id="onbName" type="text" maxlength="40" autocomplete="given-name" placeholder="${L("Como te chamas? (opcional)", "What's your name? (optional)")}" value="${escapeHtml(onb.name)}" />
       </div>`;
     const input = $("#onbName");
     input.addEventListener("input", () => (onb.name = input.value.trim()));
@@ -486,11 +511,11 @@ function renderOnb() {
   }
 
   if (key === "servico") {
-    const opts = [...CONFIG.services.map((s) => ({ icon: s.icon, name: s.name })), { icon: "🤍", name: "Ainda não sei / quero aconselhamento" }];
+    const opts = [...CONFIG.services.map((s) => ({ icon: s.icon, name: s.name })), { icon: "🤍", name: ADVICE }];
     body.innerHTML = `
-      <h3>${hi ? `${hi}q` : "Q"}ue serviço procuras?</h3>
-      <p>Se ainda não sabes, não faz mal — a Helen aconselha-te.</p>
-      <div class="onb__options">${opts.map((o) => `<button type="button" class="onb__opt${onb.service === o.name ? " active" : ""}" data-v="${escapeHtml(o.name)}"><span>${o.icon}</span>${escapeHtml(o.name)}</button>`).join("")}</div>`;
+      <h3>${L(`${hi ? `${hi}q` : "Q"}ue serviço procuras?`, `${hi ? `${hi}w` : "W"}hich service are you looking for?`)}</h3>
+      <p>${L("Se ainda não sabes, não faz mal — a Helen aconselha-te.", "Not sure yet? No problem — Helen will advise you.")}</p>
+      <div class="onb__options">${opts.map((o) => `<button type="button" class="onb__opt${onb.service === o.name ? " active" : ""}" data-v="${escapeHtml(o.name)}"><span>${o.icon}</span>${escapeHtml(serviceLabel(o.name))}</button>`).join("")}</div>`;
     body.querySelector(".onb__options").addEventListener("click", (e) => {
       const b = e.target.closest(".onb__opt");
       if (!b) return;
@@ -502,9 +527,9 @@ function renderOnb() {
 
   if (key === "pele") {
     body.innerHTML = `
-      <h3>Qual é o teu tom de pele?</h3>
-      <p>Assim vês como a unha fica na tua mão.</p>
-      <div class="swatches swatches--skin">${SKINS.map((h, n) => `<button type="button" class="swatch${onb.design.skin === h ? " active" : ""}" style="--c:${h}" data-v="${h}" aria-label="Tom de pele ${n + 1}"></button>`).join("")}</div>`;
+      <h3>${L("Qual é o teu tom de pele?", "What's your skin tone?")}</h3>
+      <p>${L("Assim vês como a unha fica na tua mão.", "So you can see how the nails look on your hand.")}</p>
+      <div class="swatches swatches--skin">${SKINS.map((h, n) => `<button type="button" class="swatch${onb.design.skin === h ? " active" : ""}" style="--c:${h}" data-v="${h}" aria-label="${L("Tom de pele", "Skin tone")} ${n + 1}"></button>`).join("")}</div>`;
     body.querySelector(".swatches").addEventListener("click", (e) => {
       const b = e.target.closest(".swatch");
       if (!b) return;
@@ -516,9 +541,9 @@ function renderOnb() {
 
   if (key === "formato") {
     body.innerHTML = `
-      <h3>Que formato preferes?</h3>
-      <p>Toca para ver na mão.</p>
-      <div class="chips">${Object.entries(SHAPES).map(([k, v]) => `<button type="button" class="chip${onb.design.shape === k ? " active" : ""}" data-v="${k}">${v.label}</button>`).join("")}</div>`;
+      <h3>${L("Que formato preferes?", "Which shape do you prefer?")}</h3>
+      <p>${L("Toca para ver na mão.", "Tap to see it on the hand.")}</p>
+      <div class="chips">${Object.keys(SHAPES).map((k) => `<button type="button" class="chip${onb.design.shape === k ? " active" : ""}" data-v="${k}">${shapeLabel(k)}</button>`).join("")}</div>`;
     body.querySelector(".chips").addEventListener("click", (e) => {
       const b = e.target.closest(".chip");
       if (!b) return;
@@ -531,8 +556,8 @@ function renderOnb() {
 
   if (key === "cor") {
     body.innerHTML = `
-      <h3>Escolhe a cor</h3>
-      <p>Cada cor corresponde a um verniz que a Helen tem no estúdio.</p>
+      <h3>${L("Escolhe a cor", "Pick the colour")}</h3>
+      <p>${L("Cada cor corresponde a um verniz que a Helen tem no estúdio.", "Each colour matches a polish Helen has in the studio.")}</p>
       <div class="swatches">${swatchesHtml()}</div>
       <p class="polish-info" id="onbPolish"></p>`;
     const paint = () => {
@@ -554,9 +579,9 @@ function renderOnb() {
 
   if (key === "acabamento") {
     body.innerHTML = `
-      <h3>E o acabamento?</h3>
-      <div class="chips">${Object.entries(FINISHES).map(([k, v]) => `<button type="button" class="chip${onb.design.finish === k ? " active" : ""}" data-v="${k}">${v}</button>`).join("")}</div>
-      <label class="switch"><input type="checkbox" id="onbAccent" ${onb.design.accent ? "checked" : ""} /><span class="switch__track"></span>Unha de destaque com coração</label>`;
+      <h3>${L("E o acabamento?", "And the finish?")}</h3>
+      <div class="chips">${Object.keys(FINISHES).map((k) => `<button type="button" class="chip${onb.design.finish === k ? " active" : ""}" data-v="${k}">${finishLabel(k)}</button>`).join("")}</div>
+      <label class="switch"><input type="checkbox" id="onbAccent" ${onb.design.accent ? "checked" : ""} /><span class="switch__track"></span>${L("Unha de destaque com coração", "Accent nail with a heart")}</label>`;
     body.querySelector(".chips").addEventListener("click", (e) => {
       const b = e.target.closest(".chip");
       if (!b) return;
@@ -572,14 +597,14 @@ function renderOnb() {
     const info = polishInfoHtml(onb.design);
     body.innerHTML = `
       <div class="onb__result">
-        <p class="script">ficou linda</p>
-        <h3>${onb.name ? `${escapeHtml(onb.name)}, a` : "A"} tua unha está pronta!</h3>
-        <p><strong>${escapeHtml(designLabel(onb.design))}</strong>${onb.service ? `<br><span class="muted">${escapeHtml(onb.service)}</span>` : ""}</p>
+        <p class="script">${L("ficou linda", "it looks lovely")}</p>
+        <h3>${L(`${onb.name ? `${escapeHtml(onb.name)}, a` : "A"} tua unha está pronta!`, `${onb.name ? `${escapeHtml(onb.name)}, y` : "Y"}our nails are ready!`)}</h3>
+        <p><strong>${escapeHtml(designLabel(onb.design))}</strong>${onb.service ? `<br><span class="muted">${escapeHtml(serviceLabel(onb.service))}</span>` : ""}</p>
         ${info ? `<p class="polish-info">${info}</p>` : ""}
         <div class="onb__actions">
-          <button type="button" class="btn" data-onb-act="book">Marcar com este design ♥</button>
-          ${Backend.enabled ? `<button type="button" class="btn btn--ghost" data-onb-act="save">♡ Guardar nas minhas unhas</button>` : ""}
-          <button type="button" class="onb__skip" data-onb-act="studio">Afinar no estúdio</button>
+          <button type="button" class="btn" data-onb-act="book">${L("Marcar com este design ♥", "Book with this design ♥")}</button>
+          ${Backend.enabled ? `<button type="button" class="btn btn--ghost" data-onb-act="save">${L("♡ Guardar nas minhas unhas", "♡ Save to my nails")}</button>` : ""}
+          <button type="button" class="onb__skip" data-onb-act="studio">${L("Afinar no estúdio", "Fine-tune in the studio")}</button>
         </div>
       </div>`;
     body.querySelector(".onb__actions").addEventListener("click", onbAction);
@@ -649,20 +674,21 @@ function buildServices() {
   const draw = (cat) => {
     $("#servicesGrid").innerHTML = CONFIG.services
       .filter((s) => cat === "todos" || s.cat === cat)
-      .map((s, i) => `
+      .map((s, i) => ({ s, t: svcText(s), i }))
+      .map(({ s, t, i }) => `
     <article class="service" style="animation-delay:${i * 0.06}s" tabindex="0">
       <div class="service__inner">
         <div class="service__face">
           <span class="service__cat">${SERVICE_CATS[s.cat]}</span>
           <div class="service__icon">${s.icon}</div>
-          <h3>${s.name}</h3>
-          <p class="muted">${s.short}</p>
-          ${s.price ? `<p class="service__price">a partir de<strong>${s.price}</strong></p>` : `<p class="service__more">ver detalhes ↻</p>`}
+          <h3>${t.name}</h3>
+          <p class="muted">${t.short}</p>
+          ${s.price ? `<p class="service__price">${L("a partir de", "from")}<strong>${s.price}</strong></p>` : `<p class="service__more">${L("ver detalhes ↻", "see details ↻")}</p>`}
         </div>
         <div class="service__face service__face--back">
-          <h3>${s.name}</h3>
-          <p>${s.details}</p>
-          <button type="button" class="btn" data-service="${s.name}">Marcar ♥</button>
+          <h3>${t.name}</h3>
+          <p>${t.details}</p>
+          <button type="button" class="btn" data-service="${s.name}">${L("Marcar ♥", "Book ♥")}</button>
         </div>
       </div>
     </article>`).join("");
@@ -696,25 +722,28 @@ function buildServices() {
     }
   });
 
-  $("#serviceSelect").innerHTML = CONFIG.services.map((s) => `<option>${s.name}</option>`).join("") + `<option>Ainda não sei / quero aconselhamento</option>`;
+  $("#serviceSelect").innerHTML = [...CONFIG.services.map((s) => s.name), ADVICE]
+    .map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(serviceLabel(n))}</option>`).join("");
 }
 
 /* ---------- galeria ---------- */
 const GALLERY = [
-  { name: "Rosa Helen", tag: "delicadas", shape: "amendoada", color: "#E8588A", finish: "brilho", accent: true },
-  { name: "Chocolate Chic", tag: "classicas", shape: "quadrada", color: "#5A2E1E", finish: "brilho", accent: false },
-  { name: "Francesa Rosé", tag: "classicas", shape: "amendoada", color: "#FAFAFA", finish: "francesinha", accent: false },
-  { name: "Nude Clean", tag: "delicadas", shape: "curta", color: "#E7B9A6", finish: "fosco", accent: false },
-  { name: "Vermelho Paixão", tag: "marcantes", shape: "stiletto", color: "#C8102E", finish: "brilho", accent: false },
-  { name: "Glow Dourado", tag: "festa", shape: "bailarina", color: "#D4AF37", finish: "cromado", accent: false },
-  { name: "Lilás Glitter", tag: "festa", shape: "amendoada", color: "#B79CE0", finish: "glitter", accent: false },
-  { name: "Vinho Matte", tag: "marcantes", shape: "bailarina", color: "#6D1A36", finish: "fosco", accent: false },
-  { name: "Ombré Rosa", tag: "delicadas", shape: "amendoada", color: "#E8588A", finish: "ombre", accent: false },
-  { name: "Menta Fresh", tag: "delicadas", shape: "redonda", color: "#A8E0C8", finish: "brilho", accent: true },
-  { name: "Black Glam", tag: "festa", shape: "stiletto", color: "#1E1A1C", finish: "glitter", accent: false },
-  { name: "Francesa Colorida", tag: "marcantes", shape: "quadrada", color: "#E8588A", finish: "francesinha", accent: true },
+  { name: "Rosa Helen", en: "Helen Pink", tag: "delicadas", shape: "amendoada", color: "#E8588A", finish: "brilho", accent: true },
+  { name: "Chocolate Chic", en: "Chocolate Chic", tag: "classicas", shape: "quadrada", color: "#5A2E1E", finish: "brilho", accent: false },
+  { name: "Francesa Rosé", en: "Rosé French", tag: "classicas", shape: "amendoada", color: "#FAFAFA", finish: "francesinha", accent: false },
+  { name: "Nude Clean", en: "Clean Nude", tag: "delicadas", shape: "curta", color: "#E7B9A6", finish: "fosco", accent: false },
+  { name: "Vermelho Paixão", en: "Passion Red", tag: "marcantes", shape: "stiletto", color: "#C8102E", finish: "brilho", accent: false },
+  { name: "Glow Dourado", en: "Golden Glow", tag: "festa", shape: "bailarina", color: "#D4AF37", finish: "cromado", accent: false },
+  { name: "Lilás Glitter", en: "Lilac Glitter", tag: "festa", shape: "amendoada", color: "#B79CE0", finish: "glitter", accent: false },
+  { name: "Vinho Matte", en: "Matte Burgundy", tag: "marcantes", shape: "bailarina", color: "#6D1A36", finish: "fosco", accent: false },
+  { name: "Ombré Rosa", en: "Pink Ombré", tag: "delicadas", shape: "amendoada", color: "#E8588A", finish: "ombre", accent: false },
+  { name: "Menta Fresh", en: "Fresh Mint", tag: "delicadas", shape: "redonda", color: "#A8E0C8", finish: "brilho", accent: true },
+  { name: "Black Glam", en: "Black Glam", tag: "festa", shape: "stiletto", color: "#1E1A1C", finish: "glitter", accent: false },
+  { name: "Francesa Colorida", en: "Colourful French", tag: "marcantes", shape: "quadrada", color: "#E8588A", finish: "francesinha", accent: true },
 ];
-const TAGS = { todas: "Todas", delicadas: "Delicadas", classicas: "Clássicas", marcantes: "Marcantes", festa: "Para festas" };
+const TAGS = EN
+  ? { todas: "All", delicadas: "Delicate", classicas: "Classic", marcantes: "Bold", festa: "Party" }
+  : { todas: "Todas", delicadas: "Delicadas", classicas: "Clássicas", marcantes: "Marcantes", festa: "Para festas" };
 
 function buildGallery() {
   const filters = $("#galleryFilters");
@@ -726,8 +755,8 @@ function buildGallery() {
       .map(({ g, i }, n) => `
         <button type="button" class="g-item" data-i="${i}" style="animation-delay:${n * 0.05}s">
           <svg viewBox="0 0 520 380" aria-hidden="true">${handMarkup({ ...g, skin: SKINS[i % 3] })}</svg>
-          <h3>${g.name}</h3>
-          <p>${SHAPES[g.shape].label} · ${FINISHES[g.finish]}</p>
+          <h3>${L(g.name, g.en)}</h3>
+          <p>${shapeLabel(g.shape)} · ${finishLabel(g.finish)}</p>
         </button>`).join("");
   };
   filters.addEventListener("click", (e) => {
@@ -739,10 +768,10 @@ function buildGallery() {
   $("#gallery").addEventListener("click", (e) => {
     const item = e.target.closest(".g-item");
     if (!item) return;
-    const { name, tag, ...design } = GALLERY[+item.dataset.i];
+    const { name, en, tag, ...design } = GALLERY[+item.dataset.i];
     setDesign({ ...design, skin: state.skin }, { scroll: true });
     Track.track("gallery_open", designProps(design, { name }));
-    toast(`“${name}” aberto no estúdio ✨`);
+    toast(L(`“${name}” aberto no estúdio ✨`, `“${en}” opened in the studio ✨`));
   });
   // as 12 mãos só são desenhadas quando a galeria se aproxima do ecrã (página abre mais depressa)
   const lazy = new IntersectionObserver(([en]) => {
@@ -756,31 +785,31 @@ function buildGallery() {
 /* ---------- quiz ---------- */
 const QUIZ = [
   {
-    q: "Como descreverias o teu estilo?", key: "style",
+    q: L("Como descreverias o teu estilo?", "How would you describe your style?"), key: "style",
     opts: [
-      { icon: "🌷", text: "Romântica e delicada", v: { color: "#F9C6D6", vibe: "Romântica" } },
-      { icon: "🤍", text: "Clássica e elegante", v: { color: "#E7B9A6", vibe: "Elegante" } },
-      { icon: "🔥", text: "Poderosa e marcante", v: { color: "#C8102E", vibe: "Poderosa" } },
-      { icon: "🦋", text: "Criativa e divertida", v: { color: "#B79CE0", vibe: "Criativa" } },
-      { icon: "🍫", text: "Sofisticada e discreta", v: { color: "#5A2E1E", vibe: "Sofisticada" } },
+      { icon: "🌷", text: L("Romântica e delicada", "Romantic and delicate"), v: { color: "#F9C6D6", vibe: "Romântica", vibeEn: "Romantic" } },
+      { icon: "🤍", text: L("Clássica e elegante", "Classic and elegant"), v: { color: "#E7B9A6", vibe: "Elegante", vibeEn: "Elegant" } },
+      { icon: "🔥", text: L("Poderosa e marcante", "Powerful and bold"), v: { color: "#C8102E", vibe: "Poderosa", vibeEn: "Powerful" } },
+      { icon: "🦋", text: L("Criativa e divertida", "Creative and fun"), v: { color: "#B79CE0", vibe: "Criativa", vibeEn: "Creative" } },
+      { icon: "🍫", text: L("Sofisticada e discreta", "Sophisticated and understated"), v: { color: "#5A2E1E", vibe: "Sofisticada", vibeEn: "Sophisticated" } },
     ],
   },
   {
-    q: "E a tua rotina com as mãos?", key: "routine",
+    q: L("E a tua rotina com as mãos?", "And what's your daily routine with your hands like?"), key: "routine",
     opts: [
-      { icon: "⌨️", text: "Uso muito: escrevo, cozinho, pego em peso", v: { shape: "curta" } },
-      { icon: "☕", text: "Equilibrada, nada muito pesado", v: { shape: "redonda" } },
-      { icon: "💃", text: "Adoro unhas compridas e elegantes", v: { shape: "amendoada" } },
-      { icon: "👑", text: "Quanto mais longa, melhor!", v: { shape: "bailarina" } },
+      { icon: "⌨️", text: L("Uso muito: escrevo, cozinho, pego em peso", "I use them a lot: typing, cooking, lifting"), v: { shape: "curta" } },
+      { icon: "☕", text: L("Equilibrada, nada muito pesado", "Balanced, nothing too heavy"), v: { shape: "redonda" } },
+      { icon: "💃", text: L("Adoro unhas compridas e elegantes", "I love long, elegant nails"), v: { shape: "amendoada" } },
+      { icon: "👑", text: L("Quanto mais longa, melhor!", "The longer, the better!"), v: { shape: "bailarina" } },
     ],
   },
   {
-    q: "Para que ocasião são as unhas?", key: "occasion",
+    q: L("Para que ocasião são as unhas?", "What's the occasion?"), key: "occasion",
     opts: [
-      { icon: "🌤️", text: "Dia a dia", v: { finish: "brilho" } },
-      { icon: "💼", text: "Trabalho e reuniões", v: { finish: "fosco" } },
-      { icon: "🥂", text: "Festa ou evento", v: { finish: "glitter" } },
-      { icon: "💍", text: "Momento especial / noivado", v: { finish: "francesinha" } },
+      { icon: "🌤️", text: L("Dia a dia", "Everyday"), v: { finish: "brilho" } },
+      { icon: "💼", text: L("Trabalho e reuniões", "Work and meetings"), v: { finish: "fosco" } },
+      { icon: "🥂", text: L("Festa ou evento", "A party or event"), v: { finish: "glitter" } },
+      { icon: "💍", text: L("Momento especial / noivado", "A special moment / engagement"), v: { finish: "francesinha" } },
     ],
   },
 ];
@@ -804,16 +833,16 @@ function buildQuiz() {
       return;
     }
     const r = Object.assign({ accent: true, skin: state.skin }, ...Object.values(answers));
-    const { vibe, ...design } = r;
+    const { vibe, vibeEn, ...design } = r;
     Track.track("quiz_complete", designProps(design, { vibe }));
     body.innerHTML = `
       <div class="quiz__result">
-        <p class="script">a tua vibe é</p>
-        <h3>${vibe}</h3>
+        <p class="script">${L("a tua vibe é", "your vibe is")}</p>
+        <h3>${L(vibe, vibeEn)}</h3>
         <svg viewBox="0 0 520 380" aria-hidden="true">${handMarkup(design, { animate: !reduceMotion })}</svg>
-        <p>Sugerimos: <strong>${designLabel(design)}</strong></p>
-        <button type="button" class="btn" id="quizOpen">Abrir no estúdio ✨</button>
-        <button type="button" class="btn btn--ghost" id="quizRedo">Refazer</button>
+        <p>${L("Sugerimos", "We suggest")}: <strong>${designLabel(design)}</strong></p>
+        <button type="button" class="btn" id="quizOpen">${L("Abrir no estúdio ✨", "Open in the studio ✨")}</button>
+        <button type="button" class="btn btn--ghost" id="quizRedo">${L("Refazer", "Start again")}</button>
       </div>`;
     $("#quizOpen").onclick = () => setDesign(design, { scroll: true });
     $("#quizRedo").onclick = () => { step = 0; answers = {}; render(); };
@@ -832,7 +861,15 @@ function buildQuiz() {
 }
 
 /* ---------- FAQ ---------- */
-const FAQ = [
+const FAQ = EN ? [
+  ["Where are appointments held?", "In Coimbra, Portugal. When you book on WhatsApp, Helen will send you all the details."],
+  ["What's the difference between nail strengthening and a gel overlay?", "Both protect the natural nail. Strengthening is ideal for fragile, brittle nails; a gel overlay adds a layer with more structure and durability. If in doubt, Helen will advise you at your appointment."],
+  ["How often should I have my extensions maintained?", "It depends on how fast your natural nails grow. Helen will tell you the ideal interval to keep your extensions beautiful and safe."],
+  ["Can I bring a reference photo?", "Of course! You can send it on WhatsApp when you book — or design your nails here on the website."],
+  ["How are hygiene and safety ensured?", "With many years of experience as a nurse, Helen takes special care with hygiene, safety and organisation at every appointment."],
+  ["Are the colours on the website Helen's polishes?", "Yes! The studio colours are linked to the polishes Helen has. When you pick a colour, the polish name appears — and it's included in your booking message."],
+  ["Why sign in with Google?", `To save up to ${CONFIG.maxSavedDesigns} favourite designs and come back to them whenever you like, on any device.`],
+] : [
   ["Onde é o atendimento?", "Em Coimbra, Portugal. Ao marcar pelo WhatsApp, a Helen envia-te todos os detalhes."],
   ["Qual a diferença entre blindagem e banho de gel?", "Ambos protegem a unha natural. A blindagem é indicada para fortalecer unhas frágeis e quebradiças; o banho de gel cria uma camada com mais estrutura e durabilidade. Na dúvida, a Helen aconselha-te no atendimento."],
   ["De quanto em quanto tempo devo fazer a manutenção da extensão?", "Depende do crescimento da tua unha natural. A Helen indica-te o intervalo ideal para manteres a extensão bonita e segura."],
@@ -890,22 +927,23 @@ function buildBooking() {
     const missing = ["nome", "data"].filter((n) => !f[n].value.trim() || (n === "data" && f.data.value < date.min));
     if (missing.length) {
       missing.forEach((n) => f[n].classList.add("invalid"));
-      err.textContent = missing.includes("nome") ? "Diz-me o teu nome? ♥" : "Escolhe uma data a partir de hoje.";
+      err.textContent = missing.includes("nome") ? L("Diz-me o teu nome? ♥", "What's your name? ♥") : L("Escolhe uma data a partir de hoje.", "Please choose a date from today onwards.");
       f[missing[0]].focus();
       Track.track("booking_error", { missing: missing.join(",") });
       return;
     }
     err.textContent = "";
     const [y, m, d] = f.data.value.split("-");
+    const period = f.periodo.selectedOptions[0].text;
     const lines = [
-      `Olá, Helen! ♥ Chamo-me ${f.nome.value.trim()}.`,
-      `Gostaria de marcar: *${f.servico.value}*`,
-      `📅 ${d}/${m}/${y} — ${f.periodo.value}`,
+      L(`Olá, Helen! ♥ Chamo-me ${f.nome.value.trim()}.`, `Hi Helen! ♥ My name is ${f.nome.value.trim()}.`),
+      `${L("Gostaria de marcar", "I'd like to book")}: *${serviceLabel(f.servico.value)}*`,
+      `📅 ${d}/${m}/${y} — ${period}`,
     ];
     if (bookedDesign) {
       lines.push(`💅 Design: ${designLabel(bookedDesign)}${paletteMatch(bookedDesign.color) ? "" : ` (${bookedDesign.color})`}`);
       const polish = polishFor(bookedDesign);
-      if (polish) lines.push(`🧴 ${polish.exact ? "Verniz" : "Verniz mais parecido"}: ${polish.label}`);
+      if (polish) lines.push(`🧴 ${polish.exact ? L("Verniz", "Polish") : L("Verniz mais parecido", "Closest polish")}: ${polish.label}`);
     }
     if (f.obs.value.trim()) lines.push(`📝 ${f.obs.value.trim()}`);
 
@@ -920,12 +958,22 @@ function buildBooking() {
 }
 
 /* ---------- sobre a Helen ---------- */
-const JOURNEY = [
+const JOURNEY = EN ? [
+  { icon: "🩺", title: "Many years as a nurse", text: "Hospital experience in intensive care and emergency departments. That's where I learned precision, responsibility and attention to each person's needs." },
+  { icon: "💅", title: "A passion that became a profession", text: "My interest in nails began as a wish to learn something new. I studied, practised and refined different techniques until it became a new professional path." },
+  { icon: "🌸", title: "Helen Regiani Nails, in Coimbra", text: "Today I bring together creativity, beauty and care. I keep investing in training and practice, because every appointment is a chance to grow and deliver an even better result." },
+] : [
   { icon: "🩺", title: "Muitos anos como enfermeira", text: "Experiência hospitalar em cuidados intensivos e urgências. Foi aí que aprendi a precisão, a responsabilidade e a atenção às necessidades de cada pessoa." },
   { icon: "💅", title: "Uma paixão que virou profissão", text: "O interesse pelas unhas começou como vontade de aprender algo novo. Estudei, pratiquei e aperfeiçoei diferentes técnicas até isso se tornar um novo projeto profissional." },
   { icon: "🌸", title: "Helen Regiani Nails, em Coimbra", text: "Hoje uno criatividade, beleza e cuidado. Continuo a investir em formação e prática, porque cada atendimento é uma oportunidade de evoluir e oferecer um resultado ainda melhor." },
 ];
-const VALUES = [
+const VALUES = EN ? [
+  ["Precision", "Every detail counts: from preparing the nail to the final finish."],
+  ["Hygiene", "Organisation and hygiene with the rigour of someone who worked in intensive care."],
+  ["Responsibility", "Safe techniques that respect the health of your natural nails."],
+  ["Care", "A calm, unhurried appointment where you feel well looked after."],
+  ["Listening", "Every client is heard: the result respects your style and your needs."],
+] : [
   ["Precisão", "Cada detalhe conta: da preparação da unha ao acabamento final."],
   ["Higiene", "Organização e higiene com o rigor de quem trabalhou em cuidados intensivos."],
   ["Responsabilidade", "Técnicas seguras, que respeitam a saúde da tua unha natural."],
@@ -964,7 +1012,7 @@ function buildAbout() {
 
 function rotateWords() {
   const el = $("#rotator");
-  const words = ["bonita", "cuidada", "confiante", "satisfeita"];
+  const words = L(["bonita", "cuidada", "confiante", "satisfeita"], ["beautiful", "cared for", "confident", "happy"]);
   let i = 0;
   if (reduceMotion) return;
   setInterval(() => {
@@ -1119,7 +1167,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   $$(".js-phone").forEach((a) => { a.href = waUrl(); a.textContent = CONFIG.whatsapp.replace(/^351(\d{3})(\d{3})(\d{3})$/, "+351 $1 $2 $3"); });
   [["#waLink", "rodape"], ["#waFloat", "botao_flutuante"]].forEach(([sel, where]) => {
     const a = $(sel);
-    a.href = waUrl("Olá, Helen! ♥ Vim pelo site e gostaria de mais informações.");
+    a.href = waUrl(L("Olá, Helen! ♥ Vim pelo site e gostaria de mais informações.", "Hi Helen! ♥ I found you through your website and would like more information."));
     a.addEventListener("click", (e) => {
       Track.track("whatsapp_click", { where });
       if (!whatsappConfigured()) { e.preventDefault(); toast("Número do WhatsApp ainda não configurado (vê js/config.js)."); }

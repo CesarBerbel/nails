@@ -641,3 +641,15 @@ button.saved__slot:hover { border-color: var(--pink); color: var(--pink-dark); b
 .hero .reveal { opacity: 1; transform: none; animation: heroIn .9s ease both; }
 .hero .hero__logo.reveal { animation-delay: .1s; }
 @keyframes heroIn { from { opacity: .01; transform: translateY(24px); } }
+
+/* ---------- idioma (PT / EN) ---------- */
+.lang {
+  margin-left: 1.2rem; display: inline-grid; place-items: center; min-width: 2.4rem; height: 2.1rem; padding: 0 .6rem;
+  border-radius: 999px; border: 1.5px solid #F1D0DB; background: #fff; color: var(--brown);
+  font-size: .75rem; font-weight: 600; letter-spacing: .08em; transition: .2s;
+}
+.lang:hover { border-color: var(--pink); color: var(--pink-dark); }
+@media (max-width: 1180px) {
+  .lang { margin-left: auto; }
+  .lang + .auth { margin-left: .5rem; }
+}
